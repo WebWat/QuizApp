@@ -7,5 +7,30 @@
 <body>
     <h1>Username: {{ username }}</h1>
     <a href="logout">Выйти</a>
+    <h2>Тесты:</h2>
+    {% if tests.count > 0 %}
+    <table>
+        <thead>
+            <th>Id</th>
+            <th>Название</th>
+            <th>Дата создания</th>
+            <th></th>
+        </thead>
+        {% for test in tests %}
+        <tr>
+            <td>{{ test.id }}</td>
+            <td>{{ test.title }}</td>
+            <td>{{ test.created_at }}</td>
+            <td>
+                <a href="edit_test/{{test.id}}">Изменить</a> | 
+                <a href="delete_test/{{test.id}}">Удалить</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <h3>Список пуст</h3>
+    {% endif %}
+    <a href="/create_test">Создать тест</a>
 </body>
 </html>

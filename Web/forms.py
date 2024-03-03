@@ -16,6 +16,6 @@ class RegisterForm(UserCreationForm):
     password2 = forms.CharField(
         widget = forms.PasswordInput(attrs={"placeholder": "Повторите пароль"}))
     
-    # class Meta:
-    #     model = User
-    #     fields = ["username", "password1", "password2"]
+class TestForm(forms.Form):
+    title = forms.CharField()
+    description = forms.CharField()

@@ -20,8 +20,11 @@ from Web import views
  
 urlpatterns = [
     path("", views.index),
-    path("login", views._login),
+    path("login", views.login),
     path("register", views.register),
     path("profile", views.profile),
-    path("logout", views._logout),
+    path("logout", views.logout),
+    path("create_test", views.create_test),
+    path("edit_test/<int:id>/", views.edit_test),
+    path("delete_test/<int:id>/", views.delete_test),
 ]
