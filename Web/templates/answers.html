@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ответы</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h1>Тест: {{ test.title }}</h1>
+    <h1>Вопрос: {{ question.title }}</h1>
+    <h1>
+        Тип ответа:
+        {% if question.choice_type == 0 %}
+        Одиночный
+        {% else %}
+        Множественный
+        {% endif %}
+    </h1>
+    <h2>Ответы:</h2>
+    {% if answers.count > 0 %}
+    <table>
+        <thead>
+            <th>Id</th>
+            <th>Текст</th>
+            <th></th>
+        </thead>
+        {% for answer in answers %}
+        <tr>
+            <td>{{ answer.id }}</td>
+            <td>{{ answer.text }}</td>
+            <td>
+                <a href="/edit_answer/{{test.id}}/{{question.id}}/{{answer.id}}">Изменить</a> | 
+                <a href="/delete_answer/{{test.id}}/{{question.id}}/{{answer.id}}">Удалить</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <h3>Ответов нет</h3>
+    {% endif %}
+    <a href="/create_answer/{{test.id}}/{{question.id}}/">Создать ответ</a> |
+    <a href="/questions/{{test.id}}">К вопросам</a>
+</body>
+</html>

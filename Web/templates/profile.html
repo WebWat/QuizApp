@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Username: {{ username }}</h1>
-    <a href="logout">Выйти</a>
+    <a href="/logout">Выйти</a>
     <h2>Тесты:</h2>
     {% if tests.count > 0 %}
     <table>
@@ -19,11 +19,11 @@
         {% for test in tests %}
         <tr>
             <td>{{ test.id }}</td>
-            <td>{{ test.title }}</td>
+            <td><a href="questions/{{test.id}}">{{ test.title }}</a></td>
             <td>{{ test.created_at }}</td>
             <td>
-                <a href="edit_test/{{test.id}}">Изменить</a> | 
-                <a href="delete_test/{{test.id}}">Удалить</a>
+                <a href="/edit_test/{{test.id}}">Изменить</a> | 
+                <a href="/delete_test/{{test.id}}">Удалить</a>
             </td>
         </tr>
         {% endfor %}

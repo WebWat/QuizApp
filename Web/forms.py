@@ -1,21 +1,13 @@
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from django import forms
-
-class CustomLoginForm(forms.Form):
-    username = forms.CharField(  
-        widget = forms.TextInput(attrs={"placeholder": "Логин"}))
-    password = forms.CharField(
-        widget = forms.PasswordInput(attrs={"placeholder": "Пароль"}))
-
-class RegisterForm(UserCreationForm):
-    username = forms.CharField(  
-        widget = forms.TextInput(attrs={"placeholder": "Логин"}))
-    password1 = forms.CharField(
-        widget = forms.PasswordInput(attrs={"placeholder": "Пароль"}))
-    password2 = forms.CharField(
-        widget = forms.PasswordInput(attrs={"placeholder": "Повторите пароль"}))
     
 class TestForm(forms.Form):
-    title = forms.CharField()
-    description = forms.CharField()
+    title = forms.CharField(label = "Название")
+    description = forms.CharField(label = "Описание")
+
+class QuestionForm(forms.Form):
+    issue = forms.CharField(label = "Текст вопроса")
+    choices =( 
+        ("0", "Одиночный"), 
+        ("1", "Множественный"), 
+    ) 
+    choice_type = forms.ChoiceField(choices = choices, label = "Тип ответа")
