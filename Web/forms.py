@@ -18,7 +18,7 @@ class SingleAnswerForm(forms.Form):
 class MultipleAnswerForm(forms.Form):
     text = forms.CharField(label = "Текст ответа")
     choices =( 
-        ("0", "Не верный"), 
+        ("0", "Неверный"), 
         ("1", "Верный"), 
     ) 
     is_correct = forms.ChoiceField(choices = choices, label = "Это верный ответ?")
