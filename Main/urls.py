@@ -16,12 +16,24 @@ Including another URLconf
 """
 
 from django.urls import path
-from Web import views
+from Auth import views as auth
+from Web import views as web
  
 urlpatterns = [
-    path("", views.index),
-    path("login", views._login),
-    path("register", views.register),
-    path("profile", views.profile),
-    path("logout", views._logout),
+    path("login", auth.login),
+    path("register", auth.register),
+    path("logout", auth.logout),
+    path("", web.index),
+    path("profile", web.profile),
+    path("create_test", web.create_test),
+    path("edit_test/<int:id>/", web.edit_test),
+    path("delete_test/<int:id>/", web.delete_test),
+    path("questions/<int:test_id>/", web.questions),
+    path("create_question/<int:test_id>/", web.create_question),
+    path("edit_question/<int:test_id>/<int:id>/", web.edit_question),
+    path("delete_question/<int:test_id>/<int:id>/", web.delete_question),
+    path("answers/<int:test_id>/<int:question_id>/", web.answers),
+    path("create_answer/<int:test_id>/<int:question_id>/", web.create_answer),
+    path("edit_answer/<int:test_id>/<int:question_id>/<int:id>/", web.edit_answer),
+    path("delete_answer/<int:test_id>/<int:question_id>/<int:id>/", web.delete_answer),
 ]

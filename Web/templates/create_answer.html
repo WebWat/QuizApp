@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Создание ответа</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            {{ form }}  
+        </table>
+        <input type="submit" value="Создать ответ">
+    </form>
+</body>
+</html>
