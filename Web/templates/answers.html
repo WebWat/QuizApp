@@ -6,27 +6,42 @@
 </head>
 <body>
     <h1>Тест: {{ test.title }}</h1>
-    <h1>Вопрос: {{ question.title }}</h1>
-    <h1>
+    <h1>Вопрос: {{ question.issue }}</h1>
+    <h2>
         Тип ответа:
         {% if question.choice_type == 0 %}
         Одиночный
         {% else %}
         Множественный
         {% endif %}
-    </h1>
+    </h2>
+    {% if question.choice_type == 0 %}
+    <h3>Правильный ответ под Id = {{ correct_answer }}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <label>Введите индекс правильного ответа</label>
+        <input type="number" name="correct_id" />
+        <input type="submit" value="Ок">
+    </form>
+    {% endif %}
     <h2>Ответы:</h2>
     {% if answers.count > 0 %}
     <table>
         <thead>
             <th>Id</th>
             <th>Текст</th>
+            {% if question.choice_type == 1 %}
+            <th>Верный ответ?</th>
+            {% endif %}
             <th></th>
         </thead>
         {% for answer in answers %}
         <tr>
             <td>{{ answer.id }}</td>
             <td>{{ answer.text }}</td>
+            {% if question.choice_type == 1 %}
+            <th>{{ answer.is_correct }}</th>
+            {% endif %}
             <td>
                 <a href="/edit_answer/{{test.id}}/{{question.id}}/{{answer.id}}">Изменить</a> | 
                 <a href="/delete_answer/{{test.id}}/{{question.id}}/{{answer.id}}">Удалить</a>

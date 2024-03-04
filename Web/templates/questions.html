@@ -17,7 +17,7 @@
         {% for question in questions %}
         <tr>
             <td>{{ question.id }}</td>
-            <td>{{ question.issue }}</td>
+            <td><a href="/answers/{{test.id}}/{{question.id}}">{{ question.issue }}</a></td>
             <td>
                 <a href="/edit_question/{{test.id}}/{{question.id}}">Изменить</a> | 
                 <a href="/delete_question/{{test.id}}/{{question.id}}">Удалить</a>

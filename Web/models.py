@@ -5,6 +5,7 @@ class Test(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE)
     title = models.CharField(max_length = 200)
     description = models.CharField(max_length = 2000)
+    is_published = models.BooleanField(default = False)
     created_at = models.DateField()
 
 class Question(models.Model):

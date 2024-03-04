@@ -32,4 +32,8 @@ urlpatterns = [
     path("create_question/<int:test_id>/", web.create_question),
     path("edit_question/<int:test_id>/<int:id>/", web.edit_question),
     path("delete_question/<int:test_id>/<int:id>/", web.delete_question),
+    path("answers/<int:test_id>/<int:question_id>/", web.answers),
+    path("create_answer/<int:test_id>/<int:question_id>/", web.create_answer),
+    path("edit_answer/<int:test_id>/<int:question_id>/<int:id>/", web.edit_answer),
+    path("delete_answer/<int:test_id>/<int:question_id>/<int:id>/", web.delete_answer),
 ]
