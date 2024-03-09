@@ -8,17 +8,12 @@ class QuestionForm(forms.Form):
     issue = forms.CharField(label = "Текст вопроса")
     choices =( 
         ("0", "Одиночный"), 
-        ("1", "Множественный"), 
+        ("1", "Множественный"),      
     ) 
     choice_type = forms.ChoiceField(choices = choices, label = "Тип ответа")
 
-class SingleAnswerForm(forms.Form):
-    text = forms.CharField(label = "Текст ответа")
+class EditQuestionForm(forms.Form):
+    issue = forms.CharField(label = "Текст вопроса")
 
-class MultipleAnswerForm(forms.Form):
+class AnswerForm(forms.Form):
     text = forms.CharField(label = "Текст ответа")
-    choices =( 
-        ("0", "Неверный"), 
-        ("1", "Верный"), 
-    ) 
-    is_correct = forms.ChoiceField(choices = choices, label = "Это верный ответ?")
