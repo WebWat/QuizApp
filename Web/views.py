@@ -69,8 +69,23 @@ def delete_test(request, id):
 def publish_test(request, id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = id)
-        test.is_published = True
-        test.save()
+        questions = test.question_set.all()
+        correct = True
+        for question in questions:
+            if question.choice_type == 0:
+                answers = question.singlechoice.singlechoiceanswers_set.all()
+                if answers.filter(id = question.singlechoice.correct_answer).count() == 0:
+                    correct = False
+                    break
+            else:
+                answers = MultipleChoiceAnswers.objects.filter(multiple_choice_id = question.id, is_correct = True)
+                if answers.count() == 0:
+                    correct = False
+                    break
+        if correct:
+            test.is_published = True
+            test.save()
+        return redirect("/profile")
     except Test.DoesNotExist:
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
     
