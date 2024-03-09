@@ -14,6 +14,7 @@
             <th>Id</th>
             <th>Название</th>
             <th>Дата создания</th>
+            <th>Опубликован?</th>
             <th></th>
         </thead>
         {% for test in tests %}
@@ -21,9 +22,11 @@
             <td>{{ test.id }}</td>
             <td><a href="questions/{{test.id}}">{{ test.title }}</a></td>
             <td>{{ test.created_at }}</td>
+            <td>{{ test.is_published }}</td>
             <td>
                 <a href="/edit_test/{{test.id}}">Изменить</a> | 
-                <a href="/delete_test/{{test.id}}">Удалить</a>
+                <a href="/delete_test/{{test.id}}">Удалить</a> |
+                <a href="/publish_test/{{test.id}}">Опубликовать</a>
             </td>
         </tr>
         {% endfor %}
