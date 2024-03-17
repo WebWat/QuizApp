@@ -1,4 +1,5 @@
 from django.http import HttpResponseNotFound
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 import datetime
 from .models import (
@@ -18,7 +19,20 @@ from .forms import (
 from django.shortcuts import redirect, render
 
 def index(request):
-    return render(request, "index.html")
+    data = { "tests": Test.objects.filter(is_published = True) }
+    return render(request, "index.html", context = data)
+
+def about(request, id):
+    test = Test.objects.filter(id = id).first()
+    data = { "test": test,
+             "username": User.objects.filter(id = test.user_id).first().username }
+    return render(request, "about.html", context = data)
+
+def run(request, test_id):
+    test = Test.objects.filter(id = id).first()
+    data = { "test": test,
+             "username": User.objects.filter(id = test.user_id).first().username }
+    return render(request, "about.html", context = data)
 
 @login_required
 def profile(request):
