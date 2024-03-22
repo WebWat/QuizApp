@@ -8,7 +8,10 @@ from .models import (
     SingleChoice, 
     SingleChoiceAnswers, 
     MultipleChoice, 
-    MultipleChoiceAnswers
+    MultipleChoiceAnswers,
+    UserAnswers,
+    SingleChoiceResult,
+    MultipleChoiceResult
 )
 from .forms import (
     TestForm, 
@@ -18,21 +21,57 @@ from .forms import (
 )
 from django.shortcuts import redirect, render
 
+user_answers_id = -1
+
 def index(request):
     data = { "tests": Test.objects.filter(is_published = True) }
     return render(request, "index.html", context = data)
 
 def about(request, id):
     test = Test.objects.filter(id = id).first()
+    if request.method == "POST":
+        global user_answers_id 
+        user_answers_id = test.useranswers_set.create().id
+        return redirect(f"/test_run/{test.id}/0")
     data = { "test": test,
              "username": User.objects.filter(id = test.user_id).first().username }
     return render(request, "about.html", context = data)
 
-def run(request, test_id):
-    test = Test.objects.filter(id = id).first()
-    data = { "test": test,
-             "username": User.objects.filter(id = test.user_id).first().username }
-    return render(request, "about.html", context = data)
+def result(request, id):
+    return HttpResponseNotFound("<h2>Nothing</h2>")
+
+def test_run(request, test_id, current):
+    try:
+        test = Test.objects.get(id = test_id)
+        question = test.question_set.all()[current]
+        if request.method == "POST":
+            answers = UserAnswers.objects.filter(id = user_answers_id).first()
+            _list = request.POST.getlist("answers")
+            if len(_list) != 0:
+                question_result = answers.questionresult_set.create()
+                if question.choice_type == 0:
+                    id = int(_list[0])
+                    question_result.singlechoiceresult = SingleChoiceResult.objects.create(chose = id, question_id = question_result.id)
+                else:
+                    multiple_choice = MultipleChoiceResult.objects.create(question_id = question_result.id)
+                    for id in _list:
+                        multiple_choice.multiplechoiceanswersresult_set.create(chose = int(id))
+                    question_result.multiplechoiceresult = multiple_choice
+                question_result.save()
+                if test.question_set.count() == current + 1:
+                    return redirect(f"/result/{user_answers_id}")
+                return redirect(f"/test_run/{test.id}/{current + 1}")
+        ans = { }
+        if question.choice_type == 0:
+            for a in question.singlechoice.singlechoiceanswers_set.all():
+                ans[a.id] = a.text
+        else:
+            for a in question.multiplechoice.multiplechoiceanswers_set.all():
+                ans[a.id] = a.text
+        data = { "question": question, "ans": ans }
+        return render(request, "test_run.html", context = data)
+    except Test.DoesNotExist:
+        return HttpResponseNotFound("<h2>Тест не найден</h2>")
 
 @login_required
 def profile(request):
@@ -121,8 +160,8 @@ def create_question(request, test_id):
             if form.is_valid():
                 test = Test.objects.get(user_id = request.user.id, id = test_id)
                 question = test.question_set.create(issue = form.cleaned_data["issue"], 
-                                                    choice_type = form.cleaned_data["choice_type"])
-                if question.choice_type == "0":
+                                                    choice_type = int(form.cleaned_data["choice_type"]))
+                if question.choice_type == 0:
                     SingleChoice.objects.create(question = question)
                 else:
                     MultipleChoice.objects.create(question = question)

@@ -9,6 +9,9 @@
     <h3>Описание: {{ test.description }}</h3>
     <h3>Дата создания: {{ test.created_at }}</h3>
     <h3>Автор: {{ username }}</h3>
-    <a href="run/{{test.id}}">Начать тестирование</a>
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="Начать тестирование">
+    </form>
 </body>
 </html>

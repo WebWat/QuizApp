@@ -25,6 +25,8 @@ urlpatterns = [
     path("logout", auth.logout),
     path("", web.index),
     path("about/<int:id>/", web.about),
+    path("test_run/<int:test_id>/<int:current>/", web.test_run),
+    path("result/<int:id>/", web.result),
     path("profile", web.profile),
     path("create_test", web.create_test),
     path("edit_test/<int:id>/", web.edit_test),

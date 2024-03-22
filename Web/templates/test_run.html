@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ question.issue }}</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h1>{{ question.issue }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        <fieldset>
+        {% if question.choice_type == 0 %}
+          {% for key, value in ans.items %}
+          <div>
+            <input type="radio" id="{{key}}" value="{{key}}" name="answers"/>
+            <label>{{value}}</label>
+          </div>
+          {% endfor %}
+        {% else %}
+          {% for key, value in ans.items %}
+            <div>
+              <input type="checkbox" id="{{key}}" value="{{key}}" name="answers"/>
+              <label>{{value}}</label>
+            </div>
+          {% endfor %}
+        {% endif %}
+        </fieldset>
+        <input type="submit" value="Далее">
+    </form>
+</body>
+</html>

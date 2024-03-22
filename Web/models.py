@@ -33,6 +33,7 @@ class MultipleChoiceAnswers(models.Model):
 class UserAnswers(models.Model):
     test = models.ForeignKey(Test, on_delete = models.DO_NOTHING)
     user_id = models.IntegerField(default = -1)
+    is_finished = models.BooleanField(default = False)
 
 class QuestionResult(models.Model):
     user_answers = models.ForeignKey(UserAnswers, on_delete = models.CASCADE)
@@ -46,6 +47,6 @@ class MultipleChoiceResult(models.Model):
 
 class MultipleChoiceAnswersResult(models.Model):
     multiple_choice_result = models.ForeignKey(MultipleChoiceResult, on_delete = models.CASCADE)
-    is_chose = models.BooleanField()
+    chose = models.IntegerField(default = -1)
     
     
