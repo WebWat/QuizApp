@@ -6,7 +6,7 @@ class TestForm(forms.Form):
 
 class QuestionForm(forms.Form):
     issue = forms.CharField(label = "Текст вопроса")
-    choices =( 
+    choices = ( 
         ("0", "Одиночный"), 
         ("1", "Множественный"),      
     ) 

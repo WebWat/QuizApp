@@ -5,9 +5,30 @@
     <meta charset="utf-8" />
 </head>
 <body>
+    {% if is_auth %}
+    <h1>Добро пожаловать на сайт, {{ username }}!</h1>
+    <a href="/profile">Профиль</a> |
+    <a href="/logout">Выйти</a>
+    {% else %}
     <h1>Добро пожаловать на сайт!</h1>
-    <a href="/login">Вход</a>
+    <a href="/login">Вход</a> |
     <a href="/register">Регистрация</a>
-    <a href="/profile">Профиль</a>
+    {% endif %}
+    {% if tests.count > 0 %}
+    <table>
+        <thead>
+            <th>Название</th>
+            <th>Добавлен</th>
+        </thead>
+        {% for test in tests %}
+        <tr>
+            <td><a href="about/{{test.id}}">{{ test.title }}</a></td>
+            <td>{{ test.created_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <h3>Список пуст</h3>
+    {% endif %}
 </body>
 </html>

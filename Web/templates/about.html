@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ test.title }}</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h2>Название: {{ test.title }}</h2>
+    <h3>Описание: {{ test.description }}</h3>
+    <h3>Дата создания: {{ test.created_at }}</h3>
+    <h3>Автор: {{ username }}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="Начать тестирование">
+    </form>
+</body>
+</html>

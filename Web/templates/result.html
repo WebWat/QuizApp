@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Результат</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h1>Тест: {{ title }}</h1>
+    <h1>Процент правильных ответов: {{ correct }} %</h1>
+    <h2>Результат:</h2>
+    {% for issue, answers, choice_type in questions %}
+    <fieldset>
+        <legend>{{ issue }}</legend>
+        {% if choice_type == 0 %}
+            {% for answer, chose, is_correct in answers %}
+            <div>
+                <input type="radio" disabled
+                {% if chose %}
+                checked
+                {% endif %}
+                />
+                <label>
+                    {{ answer }}
+                    {% if is_correct %}
+                     | Верный ответ
+                    {% endif %}
+                </label>
+            </div>
+            {% endfor %}
+        {% else %}
+        {% for answer, chose, is_correct in answers %}
+            <div>
+                <input type="checkbox" disabled
+                {% if chose %}
+                checked
+                {% endif %}
+                />
+                <label>
+                    {{ answer }}
+                    {% if is_correct %}
+                     | Верный ответ
+                    {% endif %}
+                </label>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </fieldset>
+    {% endfor %}
+    <a href="/">На главную</a>
+</body>
+</html>

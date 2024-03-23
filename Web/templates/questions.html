@@ -6,28 +6,33 @@
 </head>
 <body>
     <h1>Тест: {{ test.title }}</h1>
-    <h2>Вопросы</h2>
+    {% if test.is_published %}
+    <h2 style="color:red;">Тест опубликован! Read-only</h2>
+    {% else %}
+    <a href="/create_question/{{test.id}}">Создать вопрос</a> |
+    {% endif %}
+    <a href="/profile">Профиль</a>
+    <h2>Вопросы:</h2>
     {% if questions.count > 0 %}
     <table>
         <thead>
-            <th>Id</th>
             <th>Текст</th>
             <th></th>
         </thead>
         {% for question in questions %}
         <tr>
-            <td>{{ question.id }}</td>
             <td><b>{{ question.issue }}</b></td>
             <td>
+                {% if not test.is_published %}
                 <a href="/edit_question/{{test.id}}/{{question.id}}">Изменить</a> | 
                 <a href="/delete_question/{{test.id}}/{{question.id}}">Удалить</a> |
                 <a href="/create_answer/{{test.id}}/{{question.id}}/">Создать ответ</a>
+                {% endif %}
             </td>
         </tr>
         {% if question.choice_type == 0 %}
             {% for answer in question.singlechoice.singlechoiceanswers_set.all %}  
             <tr> 
-                <td>{{ answer.id }}</td>
                 <td>{{ answer.text }}</td>
                 <td>
                     Верный ответ?
@@ -38,24 +43,27 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if not test.is_published %}
                     <a href="/edit_answer/{{test.id}}/{{question.id}}/{{answer.id}}">Изменить ответ</a> | 
                     <a href="/delete_answer/{{test.id}}/{{question.id}}/{{answer.id}}">Удалить ответ</a> |
                     <a href="/set_true/{{test.id}}/{{question.id}}/{{answer.id}}">Установить как верный</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
         {% else %}
             {% for answer in question.multiplechoice.multiplechoiceanswers_set.all %}  
             <tr>  
-                <td>{{ answer.id }}</td>
                 <td>{{ answer.text }}</td>
                 <td>
                     Верный ответ? {{ answer.is_correct }}
                 </td>
                 <td>
+                    {% if not test.is_published %}
                     <a href="/edit_answer/{{test.id}}/{{question.id}}/{{answer.id}}">Изменить ответ</a> | 
                     <a href="/delete_answer/{{test.id}}/{{question.id}}/{{answer.id}}">Удалить ответ</a> |
                     <a href="/set_true/{{test.id}}/{{question.id}}/{{answer.id}}">Верный/Неверный</a>
+                    {% endif %}
                 </td>
             </tr> 
             {% endfor %}
@@ -65,7 +73,5 @@
     {% else %}
     <h3>Вопросов нет</h3>
     {% endif %}
-    <a href="/create_question/{{test.id}}">Создать вопрос</a> |
-    <a href="/profile">Профиль</a>
 </body>
 </html>
