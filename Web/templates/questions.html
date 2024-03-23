@@ -8,8 +8,9 @@
     <h1>Тест: {{ test.title }}</h1>
     {% if test.is_published %}
     <h2 style="color:red;">Тест опубликован! Read-only</h2>
-    {% endif %}
+    {% else %}
     <a href="/create_question/{{test.id}}">Создать вопрос</a> |
+    {% endif %}
     <a href="/profile">Профиль</a>
     <h2>Вопросы:</h2>
     {% if questions.count > 0 %}

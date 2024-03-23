@@ -32,25 +32,33 @@ def index(request):
 def about(request, id):
     test = Test.objects.filter(id = id).first()
     if request.method == "POST":
+        # Создаем уникальный идентификатор теста
         unique_id = uuid.uuid4().hex
-        test.useranswers_set.create(id = unique_id)
         request.session["unique_id"] = unique_id
-        return redirect(f"/test_run/{test.id}/0")
+        # Если пользователь авторизован, то привязываем тест
+        if request.user.is_authenticated:
+            test.useranswers_set.create(id = unique_id, user_id = request.user.id)
+        else:
+            test.useranswers_set.create(id = unique_id)
+        return redirect(f"/test_run/{test.id}/")
     data = { "test": test,
-             "username": User.objects.filter(id = test.user_id).first().username }
+             "username": User.objects.get(id = test.user_id).username }
     return render(request, "about.html", context = data)
 
 def result(request, unique_id):
     try:
         user_answer = UserAnswers.objects.get(id = unique_id, is_finished = True)
         test = Test.objects.get(id = user_answer.test_id)
+        # Список, необходимый для вывода результата
         questions = list()
+        # Количество верный ответов
         correct = 0
         results = QuestionResult.objects.filter(user_answers_id = unique_id)
         for result in results:
             question = Question.objects.get(id = result.question_id)
             answers = list()
             if question.choice_type == 0:
+                # Если пользователь выбрал верный ответ - добавляем балл
                 if result.singlechoiceresult.chose == question.singlechoice.correct_answer:
                     correct += 1
                 for answer in question.singlechoice.singlechoiceanswers_set.all():
@@ -59,7 +67,9 @@ def result(request, unique_id):
                                     question.singlechoice.correct_answer == answer.id))
             else:
                 question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
+                # Количество баллов за верный ответ
                 inc = question_answers.filter(is_correct = True).count() /  question_answers.count()
+                # Итоговый балл для вопроса с множественным выбором
                 current = 0
                 for answer in question_answers:
                     chose_answers = result.multiplechoiceresult.multiplechoiceanswersresult_set.filter(chose = answer.id).count()
@@ -79,16 +89,20 @@ def result(request, unique_id):
     except UserAnswers.DoesNotExist:
         return HttpResponseNotFound("<h2>Результат не найден</h2>")
 
-def test_run(request, test_id, current):
+def test_run(request, test_id, unique_id = ""):
     try:
         test = Test.objects.get(id = test_id)
-        question = test.question_set.all()[current]
-        if request.method == "POST":
+        # Если не в режиме "продолжения", то задаем новый идентификатор
+        if unique_id == "":
             unique_id = request.session["unique_id"]
-            answers = UserAnswers.objects.get(id = unique_id)
+        user_answers = UserAnswers.objects.get(id = unique_id)
+        questions = test.question_set.all()
+        question = questions[user_answers.stage]
+        if request.method == "POST":
+            # Получаем список выбранных ответов
             _list = request.POST.getlist("answers")
             if len(_list) != 0:
-                question_result = answers.questionresult_set.create(question_id = question.id)
+                question_result = user_answers.questionresult_set.create(question_id = question.id)
                 if question.choice_type == 0:
                     id = int(_list[0])
                     question_result.singlechoiceresult = SingleChoiceResult.objects.create(chose = id, question_id = question_result.id)
@@ -98,22 +112,30 @@ def test_run(request, test_id, current):
                         multiple_choice.multiplechoiceanswersresult_set.create(chose = int(id))
                     question_result.multiplechoiceresult = multiple_choice
                 question_result.save()
-                if test.question_set.count() == current + 1:
-                    answers.is_finished = True
-                    answers.save()
-                    return redirect(f"/result/{unique_id}")
-                return redirect(f"/test_run/{test.id}/{current + 1}")
-        answers = {}
+                # Если вопрос последний, то переходим на страницу результата
+                if test.question_set.count() == user_answers.stage + 1:
+                    user_answers.is_finished = True
+                    user_answers.save()
+                    return redirect(f"/result/{unique_id}/")
+                user_answers.stage += 1
+                user_answers.save()
+                question = questions[user_answers.stage]
+        user_answers = { }
         if question.choice_type == 0:
             for answer in question.singlechoice.singlechoiceanswers_set.all():
-                answers[answer.id] = answer.text
+                user_answers[answer.id] = answer.text
         else:
             for answer in question.multiplechoice.multiplechoiceanswers_set.all():
-                answers[answer.id] = answer.text
-        data = { "question": question, "answers": answers }
+                user_answers[answer.id] = answer.text
+        data = { "question": question, "answers": user_answers }
         return render(request, "test_run.html", context = data)
     except (Test.DoesNotExist, UserAnswers.DoesNotExist):
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
+
+@login_required
+def history(request):
+    data = { "results": UserAnswers.objects.filter(user_id = request.user.id) }
+    return render(request, "history.html", context = data)
 
 @login_required
 def profile(request):
@@ -127,8 +149,8 @@ def create_test(request):
         form = TestForm(request.POST)
         if form.is_valid():
             request.user.test_set.create(title = form.cleaned_data["title"], 
-                                        description = form.cleaned_data["description"],
-                                        created_at = datetime.date.today())
+                                         description = form.cleaned_data["description"],
+                                         created_at = datetime.date.today())
             return redirect("/profile")
     else:
         form = TestForm()
@@ -169,11 +191,13 @@ def publish_test(request, id):
         for question in questions:
             if question.choice_type == 0:
                 answers = question.singlechoice.singlechoiceanswers_set.all()
+                # Если не найдено ни одного верного ответа, то отклоняем
                 if answers.filter(id = question.singlechoice.correct_answer).count() == 0:
                     correct = False
                     break
             else:
                 answers = MultipleChoiceAnswers.objects.filter(multiple_choice_id = question.id, is_correct = True)
+                # Если не найдено ни одного верного ответа, то отклоняем
                 if answers.count() == 0:
                     correct = False
                     break
@@ -249,6 +273,7 @@ def set_true(request, test_id, question_id, id):
         if question.choice_type == 0:
             choice = SingleChoice.objects.get(question_id = question.id)
             answers = SingleChoiceAnswers.objects.filter(single_choice_id = question.id)
+            # Если нашли идентификатор ответа в списке, то указываем ответ как верный
             if answers.filter(id = id).count() > 0:
                 choice.correct_answer = id
                 choice.save()

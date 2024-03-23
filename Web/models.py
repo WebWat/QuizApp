@@ -33,6 +33,7 @@ class MultipleChoiceAnswers(models.Model):
 class UserAnswers(models.Model):
     id = models.CharField(max_length = 32, primary_key = True)
     test = models.ForeignKey(Test, on_delete = models.CASCADE)
+    stage = models.IntegerField(default = 0)
     user_id = models.IntegerField(default = -1)
     is_finished = models.BooleanField(default = False)
 
