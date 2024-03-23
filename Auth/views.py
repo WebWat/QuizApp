@@ -10,7 +10,8 @@ def login(request):
     if request.method == "POST":
         form = CustomLoginForm(request.POST)
         if form.is_valid():
-            user = auth.authenticate(username = form.cleaned_data["username"], password = form.cleaned_data["password"])
+            user = auth.authenticate(username = form.cleaned_data["username"],
+                                     password = form.cleaned_data["password"])
             if user:
                 auth.login(request, user)
                 return redirect("/profile")

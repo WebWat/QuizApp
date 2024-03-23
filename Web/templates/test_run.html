@@ -9,15 +9,16 @@
     <form method="post">
         {% csrf_token %}
         <fieldset>
+        <legend>Выберите правильный(ые) ответы:</legend>
         {% if question.choice_type == 0 %}
-          {% for key, value in ans.items %}
+          {% for key, value in answers.items %}
           <div>
             <input type="radio" id="{{key}}" value="{{key}}" name="answers"/>
             <label>{{value}}</label>
           </div>
           {% endfor %}
         {% else %}
-          {% for key, value in ans.items %}
+          {% for key, value in answers.items %}
             <div>
               <input type="checkbox" id="{{key}}" value="{{key}}" name="answers"/>
               <label>{{value}}</label>

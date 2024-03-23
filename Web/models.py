@@ -31,12 +31,14 @@ class MultipleChoiceAnswers(models.Model):
     is_correct = models.BooleanField(default = False)
 
 class UserAnswers(models.Model):
-    test = models.ForeignKey(Test, on_delete = models.DO_NOTHING)
+    id = models.CharField(max_length = 32, primary_key = True)
+    test = models.ForeignKey(Test, on_delete = models.CASCADE)
     user_id = models.IntegerField(default = -1)
     is_finished = models.BooleanField(default = False)
 
 class QuestionResult(models.Model):
     user_answers = models.ForeignKey(UserAnswers, on_delete = models.CASCADE)
+    question_id = models.IntegerField(default = -1)
 
 class SingleChoiceResult(models.Model):
     question = models.OneToOneField(QuestionResult, on_delete = models.CASCADE, primary_key = True)

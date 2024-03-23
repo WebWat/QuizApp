@@ -5,10 +5,15 @@
     <meta charset="utf-8" />
 </head>
 <body>
+    {% if is_auth %}
+    <h1>Добро пожаловать на сайт, {{ username }}!</h1>
+    <a href="/profile">Профиль</a> |
+    <a href="/logout">Выйти</a>
+    {% else %}
     <h1>Добро пожаловать на сайт!</h1>
-    <a href="/profile">Профиль</a>
-    <a href="/login">Вход</a>
+    <a href="/login">Вход</a> |
     <a href="/register">Регистрация</a>
+    {% endif %}
     {% if tests.count > 0 %}
     <table>
         <thead>
