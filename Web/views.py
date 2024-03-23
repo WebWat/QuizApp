@@ -68,15 +68,14 @@ def result(request, unique_id):
             else:
                 question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
                 # Количество баллов за верный ответ
-                inc = question_answers.filter(is_correct = True).count() /  question_answers.count()
+                inc = 1 / question_answers.filter(is_correct = True).count()
                 # Итоговый балл для вопроса с множественным выбором
                 current = 0
                 for answer in question_answers:
                     chose_answers = result.multiplechoiceresult.multiplechoiceanswersresult_set.filter(chose = answer.id).count()
                     if chose_answers > 0 and answer.is_correct:
                         current += inc
-                    # TODO: Подправить
-                    elif chose_answers > 0 or answer.is_correct:
+                    elif chose_answers > 0:
                         current -= inc
                     answers.append((answer.text, chose_answers > 0, answer.is_correct))
                 current = 0 if current < 0 else current
@@ -136,7 +135,19 @@ def test_run(request, test_id, unique_id = ""):
 
 @login_required
 def history(request):
-    data = { "results": UserAnswers.objects.filter(user_id = request.user.id) }
+    user_answers = UserAnswers.objects.filter(user_id = request.user.id).order_by("test_id")
+    results = list()
+    _list = list()
+    if user_answers.count() > 0:
+        test_id = user_answers[0].test_id
+        for answer in user_answers:
+            if answer.test_id != test_id:
+                results.append((Test.objects.get(id = test_id).title, _list))
+                test_id = answer.test_id
+                _list = list()
+            _list.append(answer)
+        results.append((Test.objects.get(id = test_id).title, _list))
+    data = { "user_answers": results }
     return render(request, "history.html", context = data)
 
 @login_required
@@ -184,6 +195,7 @@ def delete_test(request, id):
     except Test.DoesNotExist:
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
     
+#TODO: довести до ума
 @login_required    
 def publish_test(request, id):
     try:
