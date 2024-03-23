@@ -42,11 +42,11 @@ class QuestionResult(models.Model):
     question_id = models.IntegerField(default = -1)
 
 class SingleChoiceResult(models.Model):
-    question = models.OneToOneField(QuestionResult, on_delete = models.CASCADE, primary_key = True)
+    question_result = models.OneToOneField(QuestionResult, on_delete = models.CASCADE, primary_key = True)
     chose = models.IntegerField()
 
 class MultipleChoiceResult(models.Model):
-    question = models.OneToOneField(QuestionResult, on_delete = models.CASCADE, primary_key = True)
+    question_result = models.OneToOneField(QuestionResult, on_delete = models.CASCADE, primary_key = True)
 
 class MultipleChoiceAnswersResult(models.Model):
     multiple_choice_result = models.ForeignKey(MultipleChoiceResult, on_delete = models.CASCADE)

@@ -75,6 +75,7 @@ def result(request, unique_id):
                     chose_answers = result.multiplechoiceresult.multiplechoiceanswersresult_set.filter(chose = answer.id).count()
                     if chose_answers > 0 and answer.is_correct:
                         current += inc
+                    # TODO: Подправить
                     elif chose_answers > 0 or answer.is_correct:
                         current -= inc
                     answers.append((answer.text, chose_answers > 0, answer.is_correct))
@@ -105,9 +106,10 @@ def test_run(request, test_id, unique_id = ""):
                 question_result = user_answers.questionresult_set.create(question_id = question.id)
                 if question.choice_type == 0:
                     id = int(_list[0])
-                    question_result.singlechoiceresult = SingleChoiceResult.objects.create(chose = id, question_id = question_result.id)
+                    question_result.singlechoiceresult = SingleChoiceResult.objects.create(chose = id, 
+                                                                                           question_result_id = question_result.id)
                 else:
-                    multiple_choice = MultipleChoiceResult.objects.create(question_id = question_result.id)
+                    multiple_choice = MultipleChoiceResult.objects.create(question_result_id = question_result.id)
                     for id in _list:
                         multiple_choice.multiplechoiceanswersresult_set.create(chose = int(id))
                     question_result.multiplechoiceresult = multiple_choice

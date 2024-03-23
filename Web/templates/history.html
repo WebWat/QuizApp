@@ -26,7 +26,7 @@
                 {% if result.is_finished %}
                 {{ result.is_finished }}
                 {% else %}
-                <a target="_blank" href="/test_run/{{ result.test_id }}/{{ result.id }}">Продолжить</a>
+                <a href="/test_run/{{ result.test_id }}/{{ result.id }}">Продолжить</a>
                 {% endif %}
             </td>
         </tr>
