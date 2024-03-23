@@ -7,14 +7,19 @@
 <body>
     <h2>История</h2>
     <a href="/profile">Профиль</a>
-    {% if results.count > 0 %}
+    {% if user_answers %}
+    {% for title, results in user_answers %}
     <table>
         <thead>
+            <th>Название теста</th>
             <th>Id</th>
             <th>Завершен?</th>
         </thead>
         {% for result in results %}
         <tr>
+            <td>
+                {{ title }}
+            </td>
             <td>
                 {% if result.is_finished %}
                 <a target="_blank" href="/result/{{ result.id }}">{{ result.id }}</a>
@@ -32,6 +37,7 @@
         </tr>
         {% endfor %}
     </table>
+    {% endfor %}
     {% else %}
     <h3>Ничего нет</h3>
     {% endif %}
