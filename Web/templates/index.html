@@ -2,28 +2,42 @@
 {% block title %}QuizApp{% endblock title %}
 {% block content %}
     {% if is_auth %}
-    <h1>Добро пожаловать на сайт, {{ username }}!</h1>
-    <a href="/profile">Профиль</a> |
-    <a href="/logout">Выйти</a>
+    <h3 class="text-center">Добро пожаловать на сайт, <b>{{ username }}</b>!</h3>
+    <ul class="nav d-flex justify-content-center">
+        <li class="nav-item">
+            <a class="nav-link" href="/profile">Профиль</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/logout">Выйти</a>
+        </li>
+    </ul>
     {% else %}
-    <h1>Добро пожаловать на сайт!</h1>
-    <a href="/login">Вход</a> |
-    <a href="/register">Регистрация</a>
+    <h3 class="text-center">Добро пожаловать на сайт!</h3>
+    <ul class="nav d-flex justify-content-center">
+        <li class="nav-item">
+            <a class="nav-link" href="/login">Вход</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/register">Регистрация</a>
+        </li>
+    </ul>
     {% endif %}
     {% if tests.count > 0 %}
-    <table>
+    <table class="table">
         <thead>
             <th>Название</th>
             <th>Добавлен</th>
+            <th></th>
         </thead>
         {% for test in tests %}
         <tr>
-            <td><a href="about/{{test.id}}">{{ test.title }}</a></td>
+            <td>{{ test.title }}</td>
             <td>{{ test.created_at }}</td>
+            <td><a href="about/{{test.id}}">Пройти</a></td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
-    <h3>Список пуст</h3>
+    <h5>Список пуст</h5>
     {% endif %}
 {% endblock content %}

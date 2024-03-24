@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Изменение ответа{% endblock title %}
 {% block content %}
-    <form method="post">
-        {% csrf_token %}
-        <table>
-            {{ form }}  
-        </table>
-        <input type="submit" value="Изменить ответ">
-    </form>
+<form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="mb-3">
+        <label class="form-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+        {{ field }}
+    </div>
+    {% endfor %}
+    <input class="btn btn-primary" type="submit" value="Изменить ответ"/>
+</form>
 {% endblock content %}

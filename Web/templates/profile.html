@@ -1,15 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Профиль{% endblock title %}
 {% block content %}
-    <h1>Username: {{ username }}</h1>
-    <a href="/">Главное меню</a> |
-    <a href="/history">История</a> |
-    <a href="/change_login">Сменить логин</a> |
-    <a href="/change_password">Сменить пароль</a> |
-    <a href="/logout">Выйти</a>
-    <h2>Тесты:</h2>
+    <h3 class="text-center">Username: {{ username }}</h3>
+    <ul class="nav d-flex justify-content-center">
+        <li class="nav-item">
+            <a class="nav-link" href="/">Главное меню</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/history">История</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/change_login">Сменить логин</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/change_password">Сменить пароль</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-danger" href="/logout">Выйти</a>
+        </li>
+    </ul>
+    <h4>Тесты:</h4>
     {% if tests.count > 0 %}
-    <table>
+    <table class="table">
         <thead>
             <th>Id</th>
             <th>Название</th>
@@ -25,14 +37,14 @@
             <td>{{ test.is_published }}</td>
             <td>
                 <a href="/edit_test/{{test.id}}">Изменить</a> | 
-                <a href="/delete_test/{{test.id}}">Удалить</a> |
-                <a href="/publish_test/{{test.id}}">Опубликовать</a>
+                <a href="/publish_test/{{test.id}}">Опубликовать</a> |
+                <a class="text-danger" href="/delete_test/{{test.id}}">Удалить</a>
             </td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
-    <h3>Список пуст</h3>
+    <h5 class="text-center">Список пуст</h5>
     {% endif %}
-    <a href="/create_test">Создать тест</a>
+    <a class="btn btn-primary" href="/create_test">Создать тест</a>
 {% endblock content %}
