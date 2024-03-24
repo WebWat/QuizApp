@@ -1,27 +1,28 @@
 {% extends "base.html" %}
 {% block title %}{{ question.issue }}{% endblock title %}
 {% block content %}
-  <h1>{{ question.issue }}</h1>
+  <h3>{{ question.issue }}</h3>
   <form method="post">
       {% csrf_token %}
-      <fieldset>
-      <legend>Выберите правильный(ые) ответы:</legend>
       {% if question.choice_type == 0 %}
         {% for key, value in answers.items %}
-        <div>
-          <input type="radio" id="{{key}}" value="{{key}}" name="answers"/>
-          <label>{{value}}</label>
+        <div class="input-group mb-2">
+          <div class="input-group-text">
+            <input class="form-check-input mt-0" type="radio" id="{{key}}" value="{{key}}" name="answers"/>
+          </div>
+          <label class="form-control">{{ value }}</label>
         </div>
         {% endfor %}
       {% else %}
         {% for key, value in answers.items %}
-          <div>
-            <input type="checkbox" id="{{key}}" value="{{key}}" name="answers"/>
-            <label>{{value}}</label>
+        <div class="input-group mb-2">
+          <div class="input-group-text">
+            <input class="form-check-input mt-0" type="checkbox" id="{{key}}" value="{{key}}" name="answers"/>
           </div>
+          <label class="form-control">{{ value }}</label>
+        </div>
         {% endfor %}
       {% endif %}
-      </fieldset>
-      <input type="submit" value="Далее">
+      <input class="btn btn-primary mt-3" type="submit" value="Далее">
   </form>
 {% endblock content %}

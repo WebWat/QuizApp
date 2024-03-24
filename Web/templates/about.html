@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block title %}{{ test.title }}{% endblock title %}
 {% block content %}
-    <h2>Название: {{ test.title }}</h2>
-    <h3>Описание: {{ test.description }}</h3>
-    <h3>Дата создания: {{ test.created_at }}</h3>
-    <h3>Автор: {{ username }}</h3>
-    <form method="post">
+    <h3 class="text-center">Название: {{ test.title }}</h3>
+    <h4 class="text-center">Описание: {{ test.description }}</h4>
+    <h5 class="text-center">Дата создания: {{ test.created_at }}</h5>
+    <h5 class="text-center">Автор: {{ username }}</h5>
+    <form class="mt-5 d-flex justify-content-center" method="post">
         {% csrf_token %}
-        <input type="submit" value="Начать тестирование">
+        <input class="btn btn-lg btn-success" type="submit" value="Начать тестирование">
     </form>
+    <a class="mt-3 d-flex justify-content-center" href="/">На главную<a/>
 {% endblock content %}
