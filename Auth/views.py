@@ -1,8 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth 
+from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from .forms import (
     CustomLoginForm,
+    CustomPasswordChangeForm,
+    LoginChangeForm,
     RegisterForm
 )
 
@@ -29,6 +32,32 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, "register.html", { "form": form })
+
+@login_required
+def change_password(request):
+    user = User.objects.get(username = request.user.username)
+    if request.method == "POST":
+        form = CustomPasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth.update_session_auth_hash(request, user)
+            return redirect("/change_password")
+    else:
+        form = CustomPasswordChangeForm(user)
+    return render(request, "change_password.html", { "form": form })
+
+@login_required
+def change_login(request):
+    if request.method == "POST":
+        form = LoginChangeForm(request.POST)
+        if form.is_valid() and User.objects.filter(username = form.cleaned_data["username"]).count() == 0:
+            user = User.objects.get(username = request.user.username)
+            user.username = form.cleaned_data["username"]
+            user.save()
+            return redirect("/change_login")
+    else:
+        form = LoginChangeForm()
+    return render(request, "change_login.html", { "form": form })
 
 @login_required
 def logout(request):
