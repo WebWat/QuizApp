@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Смена логина{% endblock title %}
+{% block content %}
+    <h1>Смена логина</h1>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            {{ form }}  
+        </table>
+        <input type="submit" value="Изменить логин">
+    </form>
+    <a href="/profile">Профиль</a>
+{% endblock content %}

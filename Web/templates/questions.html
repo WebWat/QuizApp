@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Вопросы</title>
-    <meta charset="utf-8" />
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Вопросы{% endblock title %}
+{% block content %}
     <h1>Тест: {{ test.title }}</h1>
     {% if test.is_published %}
     <h2 style="color:red;">Тест опубликован! Read-only</h2>
@@ -73,5 +69,4 @@
     {% else %}
     <h3>Вопросов нет</h3>
     {% endif %}
-</body>
-</html>
+{% endblock content %}

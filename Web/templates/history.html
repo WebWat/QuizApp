@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>История</title>
-    <meta charset="utf-8" />
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}История{% endblock title %}
+{% block content %}
     <h2>История</h2>
     <a href="/profile">Профиль</a>
     {% if user_answers %}
@@ -41,5 +37,4 @@
     {% else %}
     <h3>Ничего нет</h3>
     {% endif %}
-</body>
-</html>
+{% endblock content %}

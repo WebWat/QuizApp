@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Вход</title>
-    <meta charset="utf-8" />
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Вход{% endblock title %}
+{% block content %}
     <h1>Вход</h1>
     <form method="post">
         {% csrf_token %}
@@ -13,5 +9,4 @@
         </table>
         <input type="submit" value="Логин">
     </form>
-</body>
-</html>
+{% endblock content %}

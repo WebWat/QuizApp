@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Результат</title>
-    <meta charset="utf-8" />
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Результат{% endblock title %}
+{% block content %}
     <h1>Тест: {{ title }}</h1>
     <h1>Процент правильных ответов: {{ correct }} %</h1>
     <h2>Результат:</h2>
@@ -22,7 +18,7 @@
                 <label>
                     {{ answer }}
                     {% if is_correct %}
-                     | Верный ответ
+                    | Верный ответ
                     {% endif %}
                 </label>
             </div>
@@ -38,7 +34,7 @@
                 <label>
                     {{ answer }}
                     {% if is_correct %}
-                     | Верный ответ
+                    | Верный ответ
                     {% endif %}
                 </label>
             </div>
@@ -47,5 +43,4 @@
     </fieldset>
     {% endfor %}
     <a href="/">На главную</a>
-</body>
-</html>
+{% endblock content %}

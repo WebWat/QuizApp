@@ -23,6 +23,8 @@ urlpatterns = [
     path("login", auth.login),
     path("register", auth.register),
     path("logout", auth.logout),
+    path("change_password", auth.change_password),
+    path("change_login", auth.change_login),
     path("", web.index),
     path("about/<int:id>/", web.about),
     path("test_run/<int:test_id>/", web.test_run),
