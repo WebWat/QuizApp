@@ -29,6 +29,15 @@ def index(request):
              "username": request.user.username  }
     return render(request, "index.html", context = data)
 
+def user_tests(request, username):
+    try:
+        user = User.objects.get(username = username)
+        data = { "username": user.username, 
+                 "tests": user.test_set.filter(is_published = True) }
+        return render(request, "user_tests.html", context = data)
+    except User.DoesNotExist:
+        return HttpResponseNotFound("<h2>Пользователь не найден</h2>")
+
 def about(request, id):
     test = Test.objects.filter(id = id).first()
     if request.method == "POST":
