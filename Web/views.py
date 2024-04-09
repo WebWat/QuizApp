@@ -90,10 +90,23 @@ def result(request, unique_id):
                 current = 0 if current < 0 else current
                 correct += current
             questions.append((question.issue, answers, question.choice_type))
+
+        if user_answer.correct_answer_rate == -1.0:
+            user_answer.correct_answer_rate = correct / len(questions) * 100
+            user_answer.save()
+
+        # Получаем средний процент правильных ответов среди всех пользователей
+        user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True).exclude(id = user_answer.id)
+        correct_rate_all = 0
+        for answer in user_answers:
+            correct_rate_all += answer.correct_answer_rate
+        correct_rate_all /= user_answers.count()
+
         data = { "title": test.title,
                  "user_answers": user_answer, 
                  "questions": questions,
-                 "correct": correct / len(questions) * 100 }
+                 "correct_rate_all": correct_rate_all,
+                 "correct": user_answer.correct_answer_rate }
         return render(request, "result.html", context = data)
     except UserAnswers.DoesNotExist:
         return HttpResponseNotFound("<h2>Результат не найден</h2>")

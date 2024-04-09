@@ -3,6 +3,7 @@
 {% block content %}
     <h3 class="text-center">{{ title }}</h3>
     <h4 class="text-center">Процент правильных ответов: {{ correct|floatformat:2 }} %</h1>
+    <h4 class="text-center">Процент правильных ответов среди всех прохождений: {{ correct_rate_all|floatformat:2 }} %</h1>
     <h4>Результат:</h4>
     {% for issue, answers, choice_type in questions %}
     <div class="mt-3">
