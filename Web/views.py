@@ -1,5 +1,6 @@
 from django.http import HttpResponseNotFound
 from django.contrib.auth.models import User
+from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 import datetime
@@ -54,6 +55,8 @@ def about(request, id):
              "username": User.objects.get(id = test.user_id).username }
     return render(request, "about.html", context = data)
 
+# TODO: Этот ужас можно как-нибудь упростить?
+@cache_page(30 * 60)
 def result(request, unique_id):
     try:
         user_answer = UserAnswers.objects.get(id = unique_id, is_finished = True)
@@ -63,6 +66,10 @@ def result(request, unique_id):
         # Количество верный ответов
         correct = 0
         results = QuestionResult.objects.filter(user_answers_id = unique_id)
+
+        total_user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
+        total_single_chose = total_user_answers.count()
+        current_question = 0
         for result in results:
             question = Question.objects.get(id = result.question_id)
             answers = list()
@@ -71,29 +78,64 @@ def result(request, unique_id):
                 if result.singlechoiceresult.chose == question.singlechoice.correct_answer:
                     correct += 1
                 for answer in question.singlechoice.singlechoiceanswers_set.all():
+                    average = 0
+                    # Подсчитываем количество выборов этого ответа среди всех пользователей
+                    for all in total_user_answers:
+                        if all.questionresult_set.all()[current_question].singlechoiceresult.chose == answer.id:
+                            average += 1
                     answers.append((answer.text, 
                                     result.singlechoiceresult.chose == answer.id, 
-                                    question.singlechoice.correct_answer == answer.id))
+                                    question.singlechoice.correct_answer == answer.id,
+                                    average * 100 / total_single_chose))
             else:
                 question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
                 # Количество баллов за верный ответ
                 inc = 1 / question_answers.filter(is_correct = True).count()
                 # Итоговый балл для вопроса с множественным выбором
                 current = 0
+
+                # Получаем количество всех выборов для этого вопроса
+                total_multiple_chose = 0
+                for all in total_user_answers:
+                    total_multiple_chose += all.questionresult_set.all()[current_question].multiplechoiceresult.multiplechoiceanswersresult_set.count()
+
                 for answer in question_answers:
+                    average = 0
+                    # Подсчитываем количество выборов этого ответа среди всех пользователей
+                    for all in total_user_answers:
+                        for mul_ans in all.questionresult_set.all()[current_question].multiplechoiceresult.multiplechoiceanswersresult_set.all():
+                            if mul_ans.chose == answer.id:
+                                average += 1
                     chose_answers = result.multiplechoiceresult.multiplechoiceanswersresult_set.filter(chose = answer.id).count()
                     if chose_answers > 0 and answer.is_correct:
                         current += inc
                     elif chose_answers > 0:
                         current -= inc
-                    answers.append((answer.text, chose_answers > 0, answer.is_correct))
+                    answers.append((answer.text, 
+                                    chose_answers > 0, 
+                                    answer.is_correct, 
+                                    average * 100 / total_multiple_chose))
                 current = 0 if current < 0 else current
                 correct += current
             questions.append((question.issue, answers, question.choice_type))
+            current_question += 1
+
+        if user_answer.correct_answer_rate == -1.0:
+            user_answer.correct_answer_rate = correct / len(questions) * 100
+            user_answer.save()
+
+        # Получаем средний процент правильных ответов среди всех пользователей
+        user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True).exclude(id = user_answer.id)
+        correct_rate_all = 0
+        for answer in user_answers:
+            correct_rate_all += answer.correct_answer_rate
+        correct_rate_all /= user_answers.count()
+
         data = { "title": test.title,
                  "user_answers": user_answer, 
                  "questions": questions,
-                 "correct": correct / len(questions) * 100 }
+                 "correct_rate_all": correct_rate_all,
+                 "correct": user_answer.correct_answer_rate }
         return render(request, "result.html", context = data)
     except UserAnswers.DoesNotExist:
         return HttpResponseNotFound("<h2>Результат не найден</h2>")

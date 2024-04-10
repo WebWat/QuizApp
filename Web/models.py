@@ -35,6 +35,7 @@ class UserAnswers(models.Model):
     test = models.ForeignKey(Test, on_delete = models.CASCADE)
     stage = models.IntegerField(default = 0)
     user_id = models.IntegerField(default = -1)
+    correct_answer_rate = models.FloatField(default = -1)
     is_finished = models.BooleanField(default = False)
 
 class QuestionResult(models.Model):
