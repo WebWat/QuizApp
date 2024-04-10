@@ -11,8 +11,7 @@ class CustomLoginForm(forms.Form):
 
 class RegisterForm(UserCreationForm):
     username = forms.CharField(label = "Логин",
-                               widget = forms.TextInput(attrs = 
-                                                        { "class": "form-control" }))
+        widget = forms.TextInput(attrs = { "class": "form-control" }))
     password1 = forms.CharField(label = "Пароль",
         widget = forms.PasswordInput(attrs = { "class": "form-control" }))
     password2 = forms.CharField(label = "Повторите пароль",
