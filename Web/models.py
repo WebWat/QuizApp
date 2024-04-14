@@ -12,6 +12,7 @@ class Question(models.Model):
     test = models.ForeignKey(Test, on_delete = models.CASCADE)
     issue = models.CharField(max_length = 1000)
     choice_type = models.IntegerField(default = 0)
+    image = models.ImageField(blank = True)
     #explanation = models.CharField(max_length = 2000, default = "")
 
 class SingleChoice(models.Model):
