@@ -58,12 +58,11 @@ def about(request, id):
     return render(request, "about.html", context = data)
 
 # TODO: Этот ужас можно как-нибудь упростить?
-@cache_page(30 * 60)
+#@cache_page(30 * 60)
 def result(request, unique_id):
     try:
         user_answer = UserAnswers.objects.get(id = unique_id, is_finished = True)
         test = Test.objects.get(id = user_answer.test_id)
-        # Список, необходимый для вывода результата
         questions = list()
         # Количество верный ответов
         correct = 0
@@ -120,7 +119,7 @@ def result(request, unique_id):
                                     average * 100 / total_multiple_chose))
                 current = 0 if current < 0 else current
                 correct += current
-            questions.append((question.issue, answers, question.choice_type))
+            questions.append((question.issue, question.image, answers, question.choice_type))
             current_question += 1
 
         if user_answer.correct_answer_rate == -1.0:
