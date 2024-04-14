@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from Main.settings import MEDIA_ROOT
+import os
 import datetime
 import uuid
 from .models import (
@@ -56,12 +58,11 @@ def about(request, id):
     return render(request, "about.html", context = data)
 
 # TODO: Этот ужас можно как-нибудь упростить?
-@cache_page(30 * 60)
+#@cache_page(30 * 60)
 def result(request, unique_id):
     try:
         user_answer = UserAnswers.objects.get(id = unique_id, is_finished = True)
         test = Test.objects.get(id = user_answer.test_id)
-        # Список, необходимый для вывода результата
         questions = list()
         # Количество верный ответов
         correct = 0
@@ -70,6 +71,7 @@ def result(request, unique_id):
         total_user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
         total_single_chose = total_user_answers.count()
         current_question = 0
+
         for result in results:
             question = Question.objects.get(id = result.question_id)
             answers = list()
@@ -117,7 +119,7 @@ def result(request, unique_id):
                                     average * 100 / total_multiple_chose))
                 current = 0 if current < 0 else current
                 correct += current
-            questions.append((question.issue, answers, question.choice_type))
+            questions.append((question.issue, question.image, answers, question.choice_type))
             current_question += 1
 
         if user_answer.correct_answer_rate == -1.0:
@@ -125,7 +127,7 @@ def result(request, unique_id):
             user_answer.save()
 
         # Получаем средний процент правильных ответов среди всех пользователей
-        user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True).exclude(id = user_answer.id)
+        user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
         correct_rate_all = 0
         for answer in user_answers:
             correct_rate_all += answer.correct_answer_rate
@@ -287,11 +289,14 @@ def questions(request, test_id):
 def create_question(request, test_id):
     try:
         if request.method == "POST":
-            form = QuestionForm(request.POST)
+            form = QuestionForm(request.POST, request.FILES)
             if form.is_valid():
                 test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
+                image = form.cleaned_data["image"]
+                image.name = str(uuid.uuid4())
                 question = test.question_set.create(issue = form.cleaned_data["issue"], 
-                                                    choice_type = int(form.cleaned_data["choice_type"]))
+                                                    choice_type = int(form.cleaned_data["choice_type"]),
+                                                    image = image)
                 if question.choice_type == 0:
                     SingleChoice.objects.create(question = question)
                 else:
@@ -326,6 +331,8 @@ def delete_question(request, test_id, id):
         test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
         question = Question.objects.get(test_id = test.id, id = id)
         question.delete()
+        if question.image:
+            os.remove(os.path.join(MEDIA_ROOT, question.image.name))
         return redirect(f"/questions/{test_id}/")
     except (Test.DoesNotExist, Question.DoesNotExist):
         return HttpResponseNotFound("<h2>Вопрос не найден</h2>")

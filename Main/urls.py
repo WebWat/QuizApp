@@ -18,6 +18,8 @@ Including another URLconf
 from django.urls import path
 from Auth import views as auth
 from Web import views as web
+from django.conf import settings
+from django.conf.urls.static import static
  
 urlpatterns = [
     path("login", auth.login),
@@ -46,3 +48,7 @@ urlpatterns = [
     path("edit_answer/<int:test_id>/<int:question_id>/<int:id>/", web.edit_answer),
     path("delete_answer/<int:test_id>/<int:question_id>/<int:id>/", web.delete_answer),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, 
+                          document_root = settings.MEDIA_ROOT)

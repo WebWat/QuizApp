@@ -21,7 +21,11 @@
         {% for question in questions %}
         <tr>
             <td><b>{{ question.issue }}</b></td>
-            <td></td>
+            <td>
+                {% if question.image %} 
+                <img src="{{question.image.url}}" class="img-thumbnail" />
+                {% endif %}
+            </td>
             <td>
                 {% if not test.is_published %}
                 <a href="/edit_question/{{test.id}}/{{question.id}}">Изменить</a> | 

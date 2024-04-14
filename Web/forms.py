@@ -23,6 +23,9 @@ class QuestionForm(forms.Form):
                                     widget = forms.Select(attrs = 
                                                           { "class": "form-control",
                                                             "placeholder": "Какой сегодня день?" }))
+    image = forms.ImageField(label = "Рисунок", 
+                             widget = forms.FileInput(attrs = 
+                                                     { "class": "form-control" }))
 
 class EditQuestionForm(forms.Form):
     issue = forms.CharField(label = "Текст вопроса", 
