@@ -27,7 +27,14 @@ from .forms import (
 )
 
 def index(request):
-    data = { "tests": Test.objects.filter(is_published = True),
+    title = "" if request.GET.get("title") == None else request.GET.get("title")
+    orderBy = request.GET.get("orderBy")
+    tests = Test.objects.filter(is_published = True, title__icontains = title)
+    if orderBy == "title":
+        tests = tests.order_by(orderBy)
+    elif orderBy == "published_at":
+        tests = tests.order_by(orderBy)
+    data = { "tests": tests,
              "is_auth": request.user.is_authenticated,
              "username": request.user.username  }
     return render(request, "index.html", context = data)
@@ -170,6 +177,8 @@ def test_run(request, test_id, unique_id = ""):
                 if test.question_set.count() == user_answers.stage + 1:
                     user_answers.is_finished = True
                     user_answers.save()
+                    test.pass_rate += 1
+                    test.save()
                     return redirect(f"/result/{unique_id}/")
                 user_answers.stage += 1
                 user_answers.save()
@@ -270,6 +279,7 @@ def publish_test(request, id):
                     break
         if correct:
             test.is_published = True
+            test.published_at = datetime.date.today()
             test.save()
         return redirect("/profile")
     except Test.DoesNotExist:
