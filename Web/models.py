@@ -1,12 +1,15 @@
 from django.contrib.auth.models import User
 from django.db import models
+import datetime
 
 class Test(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE)
     title = models.CharField(max_length = 200)
     description = models.CharField(max_length = 2000)
     is_published = models.BooleanField(default = False)
+    published_at = models.DateField(default = datetime.date.today())
     created_at = models.DateField()
+    pass_rate = models.IntegerField(default = 0)
 
 class Question(models.Model):
     test = models.ForeignKey(Test, on_delete = models.CASCADE)

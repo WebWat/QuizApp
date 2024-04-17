@@ -22,8 +22,24 @@
         </li>
     </ul>
     {% endif %}
+    <form method="get">
+        <div>
+            <div class="mb-2">
+                <label class="form-label">Название: </label>
+                <input name="title" class="form-control" />
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Сортировать по: </label>
+                <select name="orderBy" class="form-select">
+                    <option value="title">По количеству прохождений</option>
+                    <option value="published_at">По дате создания</option>
+                </select>
+            </div>
+            <input type="submit" value="Фильтр" class="btn btn-outline-primary" />
+        </div>
+    </form>
     {% if tests.count > 0 %}
-    <table class="table">
+    <table class="table mt-2">
         <thead>
             <th>Название</th>
             <th>Добавлен</th>
