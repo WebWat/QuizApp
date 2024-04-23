@@ -1,59 +1,40 @@
 {% extends "base.html" %}
 {% block title %}QuizApp{% endblock title %}
+{% block auth %}
+{% include "log_navbar.html" %}
+{% endblock auth %}
 {% block content %}
-    {% if is_auth %}
-    <h3 class="text-center">Добро пожаловать на сайт, <b>{{ username }}</b>!</h3>
-    <ul class="nav d-flex justify-content-center">
-        <li class="nav-item">
-            <a class="nav-link" href="/profile">Профиль</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/logout">Выйти</a>
-        </li>
-    </ul>
-    {% else %}
-    <h3 class="text-center">Добро пожаловать на сайт!</h3>
-    <ul class="nav d-flex justify-content-center">
-        <li class="nav-item">
-            <a class="nav-link" href="/login">Вход</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/register">Регистрация</a>
-        </li>
-    </ul>
-    {% endif %}
-    <form method="get">
-        <div>
-            <div class="mb-2">
-                <label class="form-label">Название: </label>
-                <input name="title" class="form-control" />
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Сортировать по: </label>
-                <select name="orderBy" class="form-select">
-                    <option value="title">По количеству прохождений</option>
-                    <option value="published_at">По дате создания</option>
-                </select>
-            </div>
-            <input type="submit" value="Фильтр" class="btn btn-outline-primary" />
+    <h4 class="text-center mb-3">Найдите интересующий вас тест:</h4>
+    <form method="get" class="d-flex mb-3">
+        <div class="flex-grow-1 me-1">
+            <input name="title" class="form-control" value="{{ title }}"/>
         </div>
+        <div class="me-1">
+            <select name="orderBy" class="form-select">
+                <option value="pass_rate" {% if selected == 0 %}selected{% endif %}>По количеству прохождений</option>
+                <option value="published_at" {% if selected == 1 %}selected{% endif %}>По дате создания</option>
+            </select>
+        </div>
+        <input type="submit" value="Фильтр" class="btn btn-outline-primary" />
     </form>
+    <span class="d-flex border-bottom border-2 mb-3"></span>
     {% if tests.count > 0 %}
-    <table class="table mt-2">
-        <thead>
-            <th>Название</th>
-            <th>Добавлен</th>
-            <th></th>
-        </thead>
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
         {% for test in tests %}
-        <tr>
-            <td>{{ test.title }}</td>
-            <td>{{ test.created_at }}</td>
-            <td><a href="about/{{test.id}}">Пройти</a></td>
-        </tr>
+        <div class="col">
+            <div class="card text-center">
+                <div class="card-body">
+                    <p><a class="card-title h4" href="about/{{test.id}}">{{ test.title }}</a></p>
+                    <h6 class="card-subtitle mb-2 text-body-secondary">{{ test.created_at }}</h6>
+                    <small class="text-body-secondary">Количество прохождений: {{ test.pass_rate }}</small>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </table>
+        </div>
+    </div>
     {% else %}
-    <h5>Список пуст</h5>
+    <h5 class="text-center">Список пуст</h5>
     {% endif %}
 {% endblock content %}

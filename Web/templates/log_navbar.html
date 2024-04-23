@@ -1,0 +1,7 @@
+{% if is_auth %}
+<a class="btn btn-link" href="/profile">{{ username }}</button>
+<a class="btn btn-outline-danger" href="/logout">Выйти</a>
+{% else %}
+<a class="btn btn-outline-primary me-2" href="/login">Войти</a>
+<a class="btn btn-primary" href="/register">Регистрация</a>
+{% endif %}
