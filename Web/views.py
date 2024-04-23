@@ -318,7 +318,8 @@ def create_question(request, test_id):
             if form.is_valid():
                 test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
                 image = form.cleaned_data["image"]
-                image.name = str(uuid.uuid4())
+                if image:
+                    image.name = str(uuid.uuid4())
                 question = test.question_set.create(issue = form.cleaned_data["issue"], 
                                                     choice_type = int(form.cleaned_data["choice_type"]),
                                                     image = image)
