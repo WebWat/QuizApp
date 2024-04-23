@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% block title %}{{ question.issue }}{% endblock title %}
+{% block auth %}
+{% include "log_navbar.html" %}
+{% endblock auth %}
 {% block content %}
   {% if question.image %}
     <img src="{{question.image.url}}" class="img-thumbnail mb-1" />
   {% endif %}
+  <h4>Вопрос: {{ current }}/{{ total_questions }}</h4>
   <h3>{{ question.issue }}</h3>
   <form method="post">
       {% csrf_token %}

@@ -30,12 +30,14 @@ def index(request):
     title = "" if request.GET.get("title") == None else request.GET.get("title")
     orderBy = request.GET.get("orderBy")
     tests = Test.objects.filter(is_published = True, title__icontains = title)
-    if orderBy == "title":
-        tests = tests.order_by(orderBy)
+    if orderBy == "pass_rate":
+        tests = tests.order_by("-" + orderBy)
     elif orderBy == "published_at":
         tests = tests.order_by(orderBy)
     data = { "tests": tests,
              "is_auth": request.user.is_authenticated,
+             "title": title,
+             "selected": 0 if orderBy == "pass_rate" else 1,
              "username": request.user.username  }
     return render(request, "index.html", context = data)
 
@@ -49,20 +51,25 @@ def user_tests(request, username):
         return HttpResponseNotFound("<h2>Пользователь не найден</h2>")
 
 def about(request, id):
-    test = Test.objects.filter(id = id).first()
-    if request.method == "POST":
-        # Создаем уникальный идентификатор теста
-        unique_id = uuid.uuid4().hex
-        request.session["unique_id"] = unique_id
-        # Если пользователь авторизован, то привязываем тест
-        if request.user.is_authenticated:
-            test.useranswers_set.create(id = unique_id, user_id = request.user.id)
-        else:
-            test.useranswers_set.create(id = unique_id)
-        return redirect(f"/test_run/{test.id}/")
-    data = { "test": test,
-             "username": User.objects.get(id = test.user_id).username }
-    return render(request, "about.html", context = data)
+    try:
+        test = Test.objects.filter(id = id).first()
+        if request.method == "POST":
+            # Создаем уникальный идентификатор теста
+            unique_id = uuid.uuid4().hex
+            request.session["unique_id"] = unique_id
+            # Если пользователь авторизован, то привязываем тест
+            if request.user.is_authenticated:
+                test.useranswers_set.create(id = unique_id, user_id = request.user.id)
+            else:
+                test.useranswers_set.create(id = unique_id)
+            return redirect(f"/test_run/{test.id}/")
+        data = { "test": test,
+                 "is_auth": request.user.is_authenticated,
+                 "username": request.user.username,
+                 "author": User.objects.get(id = test.user_id).username }
+        return render(request, "about.html", context = data)
+    except (Test.DoesNotExist):
+        return HttpResponseNotFound("<h2>Тест не найден</h2>")
 
 # TODO: Этот ужас можно как-нибудь упростить?
 #@cache_page(30 * 60)
@@ -144,7 +151,9 @@ def result(request, unique_id):
                  "user_answers": user_answer, 
                  "questions": questions,
                  "correct_rate_all": correct_rate_all,
-                 "correct": user_answer.correct_answer_rate }
+                 "correct": user_answer.correct_answer_rate,
+                 "is_auth": request.user.is_authenticated,
+                 "username": request.user.username }
         return render(request, "result.html", context = data)
     except UserAnswers.DoesNotExist:
         return HttpResponseNotFound("<h2>Результат не найден</h2>")
@@ -183,14 +192,20 @@ def test_run(request, test_id, unique_id = ""):
                 user_answers.stage += 1
                 user_answers.save()
                 question = questions[user_answers.stage]
-        user_answers = { }
+        user_answers_dict = { }
         if question.choice_type == 0:
             for answer in question.singlechoice.singlechoiceanswers_set.all():
-                user_answers[answer.id] = answer.text
+                user_answers_dict[answer.id] = answer.text
         else:
             for answer in question.multiplechoice.multiplechoiceanswers_set.all():
-                user_answers[answer.id] = answer.text
-        data = { "question": question, "answers": user_answers }
+                user_answers_dict[answer.id] = answer.text
+        data = { 
+            "question": question, 
+            "answers": user_answers_dict,
+            "total_questions": test.question_set.count(),
+            "current": user_answers.stage + 1,
+            "is_auth": request.user.is_authenticated,
+            "username": request.user.username }
         return render(request, "test_run.html", context = data)
     except (Test.DoesNotExist, UserAnswers.DoesNotExist):
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
