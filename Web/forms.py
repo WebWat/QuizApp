@@ -26,6 +26,11 @@ class QuestionForm(forms.Form):
     image = forms.ImageField(label = "Рисунок", 
                              widget = forms.FileInput(attrs = 
                                                      { "class": "form-control" }))
+    
+    def __init__(self, *args, **kwargs):
+        super(QuestionForm, self).__init__(*args, **kwargs)
+        self.fields["image"].required = False
+
 
 class EditQuestionForm(forms.Form):
     issue = forms.CharField(label = "Текст вопроса", 
