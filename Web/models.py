@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 import datetime
 
 class Test(models.Model):
@@ -7,7 +8,7 @@ class Test(models.Model):
     title = models.CharField(max_length = 200)
     description = models.CharField(max_length = 2000)
     is_published = models.BooleanField(default = False)
-    published_at = models.DateField(default = datetime.date.today())
+    published_at = models.DateField(default = timezone.now())
     created_at = models.DateField()
     pass_rate = models.IntegerField(default = 0)
 
@@ -16,7 +17,6 @@ class Question(models.Model):
     issue = models.CharField(max_length = 1000)
     choice_type = models.IntegerField(default = 0)
     image = models.ImageField(blank = True)
-    #explanation = models.CharField(max_length = 2000, default = "")
 
 class SingleChoice(models.Model):
     question = models.OneToOneField(Question, on_delete = models.CASCADE, primary_key = True)

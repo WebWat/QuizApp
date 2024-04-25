@@ -1,22 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Профиль{% endblock title %}
+{% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
 {% block content %}
     <h3 class="text-center">Username: {{ username }}</h3>
     <ul class="nav d-flex justify-content-center">
-        <li class="nav-item">
-            <a class="nav-link" href="/">Главное меню</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/history">История</a>
-        </li>
         <li class="nav-item">
             <a class="nav-link" href="/change_login">Сменить логин</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/change_password">Сменить пароль</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-danger" href="/logout">Выйти</a>
         </li>
     </ul>
     <h4>Тесты:</h4>

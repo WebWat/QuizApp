@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ question.issue }}{% endblock title %}
-{% block auth %}
-{% include "log_navbar.html" %}
-{% endblock auth %}
+{% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
 {% block content %}
   {% if question.image %}
     <img src="{{question.image.url}}" class="img-thumbnail mb-1" />

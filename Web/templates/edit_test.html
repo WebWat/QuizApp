@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Изменение теста{% endblock title %}
+{% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
 {% block content %}
     <form method="post">
         {% csrf_token %}
