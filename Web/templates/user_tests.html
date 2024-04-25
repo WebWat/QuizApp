@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ username }}{% endblock title %}
+{% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
 {% block content %}
     <h3 class="text-center">Автор: {{ username }}</h3>
     <ul class="nav d-flex justify-content-center">

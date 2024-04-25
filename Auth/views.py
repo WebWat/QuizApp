@@ -17,7 +17,8 @@ def login(request):
                                      password = form.cleaned_data["password"])
             if user:
                 auth.login(request, user)
-                return redirect("/profile")
+                path = request.GET.get("next") if request.GET.get("next") else "/profile"
+                return redirect(path)
     else:
         form = CustomLoginForm()
     return render(request, "login.html", { "form": form })
@@ -44,7 +45,9 @@ def change_password(request):
             return redirect("/change_password")
     else:
         form = CustomPasswordChangeForm(user)
-    return render(request, "change_password.html", { "form": form })
+    context = { "username": request.user.username,
+                "form": form }
+    return render(request, "change_password.html", context)
 
 @login_required
 def change_login(request):
@@ -57,7 +60,9 @@ def change_login(request):
             return redirect("/change_login")
     else:
         form = LoginChangeForm()
-    return render(request, "change_login.html", { "form": form })
+    context = { "username": request.user.username,
+                "form": form }
+    return render(request, "change_login.html", context)
 
 @login_required
 def logout(request):

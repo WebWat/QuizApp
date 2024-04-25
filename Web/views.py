@@ -34,19 +34,18 @@ def index(request):
         tests = tests.order_by("-" + orderBy)
     elif orderBy == "published_at":
         tests = tests.order_by(orderBy)
-    data = { "tests": tests,
-             "is_auth": request.user.is_authenticated,
-             "title": title,
-             "selected": 0 if orderBy == "pass_rate" else 1,
-             "username": request.user.username  }
-    return render(request, "index.html", context = data)
+    context = { "tests": tests,
+                "title": title,
+                "selected": 0 if orderBy == "pass_rate" else 1,
+                "username": request.user.username  }
+    return render(request, "index.html", context)
 
 def user_tests(request, username):
     try:
         user = User.objects.get(username = username)
-        data = { "username": user.username, 
-                 "tests": user.test_set.filter(is_published = True) }
-        return render(request, "user_tests.html", context = data)
+        context = { "username": user.username, 
+                    "tests": user.test_set.filter(is_published = True) }
+        return render(request, "user_tests.html", context)
     except User.DoesNotExist:
         return HttpResponseNotFound("<h2>Пользователь не найден</h2>")
 
@@ -63,11 +62,10 @@ def about(request, id):
             else:
                 test.useranswers_set.create(id = unique_id)
             return redirect(f"/test_run/{test.id}/")
-        data = { "test": test,
-                 "is_auth": request.user.is_authenticated,
-                 "username": request.user.username,
-                 "author": User.objects.get(id = test.user_id).username }
-        return render(request, "about.html", context = data)
+        context = { "test": test,
+                    "username": request.user.username,
+                    "author": User.objects.get(id = test.user_id).username }
+        return render(request, "about.html", context)
     except (Test.DoesNotExist):
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
 
@@ -109,12 +107,10 @@ def result(request, unique_id):
                 inc = 1 / question_answers.filter(is_correct = True).count()
                 # Итоговый балл для вопроса с множественным выбором
                 current = 0
-
                 # Получаем количество всех выборов для этого вопроса
                 total_multiple_chose = 0
                 for all in total_user_answers:
                     total_multiple_chose += all.questionresult_set.all()[current_question].multiplechoiceresult.multiplechoiceanswersresult_set.count()
-
                 for answer in question_answers:
                     average = 0
                     # Подсчитываем количество выборов этого ответа среди всех пользователей
@@ -136,6 +132,7 @@ def result(request, unique_id):
             questions.append((question.issue, question.image, answers, question.choice_type))
             current_question += 1
 
+        # Если правильный результат не задан, то вносим его
         if user_answer.correct_answer_rate == -1.0:
             user_answer.correct_answer_rate = correct / len(questions) * 100
             user_answer.save()
@@ -152,7 +149,6 @@ def result(request, unique_id):
                  "questions": questions,
                  "correct_rate_all": correct_rate_all,
                  "correct": user_answer.correct_answer_rate,
-                 "is_auth": request.user.is_authenticated,
                  "username": request.user.username }
         return render(request, "result.html", context = data)
     except UserAnswers.DoesNotExist:
@@ -199,14 +195,13 @@ def test_run(request, test_id, unique_id = ""):
         else:
             for answer in question.multiplechoice.multiplechoiceanswers_set.all():
                 user_answers_dict[answer.id] = answer.text
-        data = { 
-            "question": question, 
-            "answers": user_answers_dict,
-            "total_questions": test.question_set.count(),
-            "current": user_answers.stage + 1,
-            "is_auth": request.user.is_authenticated,
-            "username": request.user.username }
-        return render(request, "test_run.html", context = data)
+        context = { "question": question, 
+                    "answers": user_answers_dict,
+                    "total_questions": test.question_set.count(),
+                    "current": user_answers.stage + 1,
+                    "is_auth": request.user.is_authenticated,
+                    "username": request.user.username }
+        return render(request, "test_run.html", context)
     except (Test.DoesNotExist, UserAnswers.DoesNotExist):
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
 
@@ -215,6 +210,7 @@ def history(request):
     user_answers = UserAnswers.objects.filter(user_id = request.user.id).order_by("test_id")
     results = list()
     _list = list()
+    # Собственная реализация группировки
     if user_answers.count() > 0:
         test_id = user_answers[0].test_id
         for answer in user_answers:
@@ -224,14 +220,15 @@ def history(request):
                 _list = list()
             _list.append(answer)
         results.append((Test.objects.get(id = test_id).title, _list))
-    data = { "user_answers": results }
-    return render(request, "history.html", context = data)
+    context = { "user_answers": results,
+                "username": request.user.username }
+    return render(request, "history.html", context)
 
 @login_required
 def profile(request):
-    data = { "username": request.user.username, 
-             "tests": Test.objects.filter(user_id = request.user.id) }
-    return render(request, "profile.html", context = data)
+    context = { "tests": Test.objects.filter(user_id = request.user.id),
+                "username": request.user.username }
+    return render(request, "profile.html", context)
 
 @login_required
 def create_test(request):
@@ -244,7 +241,9 @@ def create_test(request):
             return redirect("/profile")
     else:
         form = TestForm()
-    return render(request, "create_test.html", { "form": form })
+    context = { "username": request.user.username,
+                "form": form }
+    return render(request, "create_test.html", context)
 
 @login_required
 def edit_test(request, id):
@@ -259,7 +258,9 @@ def edit_test(request, id):
                 return redirect("/profile")
         else:
             form = TestForm(initial = { "title": test.title, "description": test.description })
-        return render(request, "edit_test.html", { "form": form })
+        context = { "username": request.user.username,
+                    "form": form }
+        return render(request, "edit_test.html", context)
     except Test.DoesNotExist:
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
 
@@ -304,9 +305,10 @@ def publish_test(request, id):
 def questions(request, test_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id)
-        data = { "test": test, 
-                 "questions": Question.objects.filter(test_id = test.id) }
-        return render(request, "questions.html", context = data)
+        context = { "test": test, 
+                    "questions": Question.objects.filter(test_id = test.id),
+                    "username": request.user.username }
+        return render(request, "questions.html", context)
     except Test.DoesNotExist:
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
 
@@ -330,7 +332,9 @@ def create_question(request, test_id):
                 return redirect(f"/questions/{test_id}/")
         else:
             form = QuestionForm()
-        return render(request, "create_question.html", { "form": form })
+        context = { "username": request.user.username,
+                    "form": form }
+        return render(request, "create_question.html", context)
     except Test.DoesNotExist:
         return HttpResponseNotFound("<h2>Вопрос не найден</h2>")
 
@@ -347,7 +351,9 @@ def edit_question(request, test_id, id):
                 return redirect(f"/questions/{test_id}/")
         else:
             form = EditQuestionForm(initial = { "issue": question.issue })
-        return render(request, "edit_question.html", { "form": form })
+        context = { "username": request.user.username,
+                    "form": form }
+        return render(request, "edit_question.html", context)
     except (Test.DoesNotExist, Question.DoesNotExist):
         return HttpResponseNotFound("<h2>Вопрос не найден</h2>")
 
@@ -404,7 +410,9 @@ def create_answer(request, test_id, question_id):
                 return redirect(f"/questions/{test_id}/")
         else:
             form = AnswerForm()
-        return render(request, "create_answer.html", { "form": form })
+        context = { "username": request.user.username,
+                    "form": form }
+        return render(request, "create_answer.html", context)
     except (Test.DoesNotExist, 
             Question.DoesNotExist, 
             SingleChoice.DoesNotExist, 
@@ -428,7 +436,9 @@ def edit_answer(request, test_id, question_id, id):
                 return redirect(f"/questions/{test_id}/")
         else:
             form = AnswerForm(initial = { "text": answer.text })
-        return render(request, "edit_answer.html", { "form": form })
+        context = { "username": request.user.username,
+                    "form": form }
+        return render(request, "edit_answer.html", context)
     except (Test.DoesNotExist, 
             Question.DoesNotExist,
             SingleChoiceAnswers.DoesNotExist,
