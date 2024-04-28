@@ -3,11 +3,6 @@
 {% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
 {% block content %}
 <h3 class="text-center">История</h2>
-<ul class="nav d-flex justify-content-center">
-    <li class="nav-item">
-        <a class="nav-link" href="/profile">Профиль</a>
-    </li>
-</ul>
 {% if user_answers %}
     {% for title, results in user_answers %}
     <table class="table">

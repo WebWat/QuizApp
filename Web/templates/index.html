@@ -16,7 +16,7 @@
         <input type="submit" value="Фильтр" class="btn btn-outline-primary" />
     </form>
     <span class="d-flex border-bottom border-2 mb-3"></span>
-    {% if tests.count > 0 %}
+    {% if tests %}
     <div class="container">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
         {% for test in tests %}
@@ -26,6 +26,11 @@
                     <p><a class="card-title h4" href="about/{{test.id}}">{{ test.title }}</a></p>
                     <h6 class="card-subtitle mb-2 text-body-secondary">{{ test.published_at }}</h6>
                     <small class="text-body-secondary">Количество прохождений: {{ test.pass_rate }}</small>
+                    <p class="mb-0">
+                        {% for tag in test.tags.all %}
+                            <span class="badge text-bg-primary">{{ tag.label }}</span>
+                        {% endfor %}
+                    </p>
                 </div>
             </div>
         </div>

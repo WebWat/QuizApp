@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Изменение тегов{% endblock title %}
+{% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
+{% block content %}
+    <h4>Тест: {{ test.title }}</h4>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Добавленные теги:</label>
+            {% for label, id, chose in tags %}
+            <div class="input-group mb-2">
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" id="{{id}}" value="{{id}}" name="tags"
+                    {% if chose %}
+                    checked
+                    {% endif %}/>
+                </div>
+                <label class="form-control">{{ label }}</label>
+            </div>
+            {% endfor %}
+        </div>
+        <input class="btn btn-primary" type="submit" value="Изменить"/>
+    </form>
+{% endblock content %}
