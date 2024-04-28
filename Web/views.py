@@ -17,7 +17,8 @@ from .models import (
     UserAnswers,
     QuestionResult,
     SingleChoiceResult,
-    MultipleChoiceResult
+    MultipleChoiceResult,
+    Tags
 )
 from .forms import (
     TestForm, 
@@ -26,16 +27,35 @@ from .forms import (
     EditQuestionForm
 )
 
+# TODO: проблема c "Русский язык"
 def index(request):
     title = "" if request.GET.get("title") == None else request.GET.get("title")
+    initial = title
     orderBy = request.GET.get("orderBy")
-    tests = Test.objects.filter(is_published = True, title__icontains = title)
+
+    query = Test.objects.filter(is_published = True)
     if orderBy == "pass_rate":
-        tests = tests.order_by("-" + orderBy)
+        query = query.order_by("-" + orderBy)
     elif orderBy == "published_at":
-        tests = tests.order_by(orderBy)
+        query = query.order_by(orderBy)
+
+    tests = list(query)
+    title = title.lower()
+    if "!" in title:
+        tags = Tags.objects.all()
+        for tag in tags:
+            name = ("!" + tag.label).lower()
+            if name in title:
+                title = title.replace(name, "")
+                for test in tests:
+                    if not test.tags.contains(tag):
+                        tests.remove(test)
+
+    title = title.rstrip()
+    tests = list(filter(lambda test: title in test.title.lower(), tests))
+
     context = { "tests": tests,
-                "title": title,
+                "title": initial,
                 "selected": 0 if orderBy == "pass_rate" else 1,
                 "username": request.user.username  }
     return render(request, "index.html", context)
@@ -144,13 +164,13 @@ def result(request, unique_id):
             correct_rate_all += answer.correct_answer_rate
         correct_rate_all /= user_answers.count()
 
-        data = { "title": test.title,
-                 "user_answers": user_answer, 
-                 "questions": questions,
-                 "correct_rate_all": correct_rate_all,
-                 "correct": user_answer.correct_answer_rate,
-                 "username": request.user.username }
-        return render(request, "result.html", context = data)
+        context = { "title": test.title,
+                    "user_answers": user_answer, 
+                    "questions": questions,
+                    "correct_rate_all": correct_rate_all,
+                    "correct": user_answer.correct_answer_rate,
+                    "username": request.user.username }
+        return render(request, "result.html", context)
     except UserAnswers.DoesNotExist:
         return HttpResponseNotFound("<h2>Результат не найден</h2>")
 
@@ -199,11 +219,52 @@ def test_run(request, test_id, unique_id = ""):
                     "answers": user_answers_dict,
                     "total_questions": test.question_set.count(),
                     "current": user_answers.stage + 1,
-                    "is_auth": request.user.is_authenticated,
                     "username": request.user.username }
         return render(request, "test_run.html", context)
     except (Test.DoesNotExist, UserAnswers.DoesNotExist):
         return HttpResponseNotFound("<h2>Тест не найден</h2>")
+
+@login_required 
+def add_tag(request, test_id):
+    try:
+        test = Test.objects.get(user_id = request.user.id, id = test_id)
+        total_tags = Tags.objects.all()
+        if request.method == "POST":
+            total = request.POST.getlist("tags")
+            test.tags.clear()
+            for id in total:
+                test.tags.add(Tags.objects.get(id = id))
+            test.save()
+        test_tags = test.tags.all()
+        tags_list = list()
+        for tag in total_tags:
+            if test_tags.contains(tag):
+                tags_list.append((tag.label, tag.id, 1))
+            else:
+                tags_list.append((tag.label, tag.id, 0))
+        context = { "test": test,
+                    "tags": tags_list, 
+                    "username": request.user.username }
+        return render(request, "add_tag.html", context)
+    except (Test.DoesNotExist):
+        return HttpResponseNotFound("<h2>Тест не найден</h2>")
+
+@login_required    
+def delete_answer(request, test_id, question_id, id):
+    try:
+        test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
+        question = Question.objects.get(test_id = test.id, id = question_id)
+        if question.choice_type == 0:
+            answer = SingleChoiceAnswers.objects.get(single_choice_id = question_id, id = id)
+        else:
+            answer = MultipleChoiceAnswers.objects.get(multiple_choice_id = question_id, id = id)
+        answer.delete()
+        return redirect(f"/questions/{test_id}/")
+    except (Test.DoesNotExist, 
+            Question.DoesNotExist, 
+            SingleChoiceAnswers.DoesNotExist,
+            MultipleChoiceAnswers.DoesNotExist):
+        return HttpResponseNotFound("<h2>Ответ не найден</h2>")
 
 @login_required
 def history(request):

@@ -6,11 +6,6 @@
     {% if test.is_published %}
     <h6 class="text-center text-danger">Тест опубликован! Read-only</h6>
     {% endif %}
-    <ul class="nav d-flex justify-content-center">
-        <li class="nav-item">
-            <a class="nav-link" href="/profile">Профиль</a>
-        </li>
-    </ul>
     <h4>Вопросы:</h4>
     {% if questions.count > 0 %}
     <table class="table">
