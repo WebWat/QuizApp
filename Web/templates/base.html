@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
-<html>
+<html style="scroll-behavior:auto;">
 <head>
     <title>{% block title %}{% endblock title %}</title>
     <meta charset="utf-8" />
@@ -23,6 +23,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/history">История</a>
                 </li>
+                {% block navbar %} {% endblock navbar %}
             </ul>
             <form class="d-flex">
                 {% block auth %} {% endblock auth %}

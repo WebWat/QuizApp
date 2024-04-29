@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block title %}{{ test.title }}{% endblock title %}
 {% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
+{% block navbar %}{% include "settings_navbar.html" %}{% endblock navbar %}
 {% block content %}
 <div class="card">
     <div class="card-body">
         <h4 class="card-title">{{ test.title }}</h4>
         <h6 class="card-text">{{ test.description }}</h6>
-        <p class="card-text mb-0"><small class="text-body-secondary">Автор: <a href="/user_tests/{{ username }}/">{{ username }}</a></small></p>
+        <p class="card-text mb-0"><small class="text-body-secondary">Автор: <a href="/user_tests/{{ username }}/" target="_blank">{{ username }}</a></small></p>
         <p>
             {% for tag in test.tags.all %}
                 <span class="badge text-bg-primary">{{ tag.label }}</span>
@@ -21,5 +22,5 @@
         Дата публикации: {{ test.published_at }}
     </div>
 </div>
-<a href="/" class="btn btn-outline-primary mt-1">Назад к списку<a/>
+<a href="/" class="btn btn-primary mt-2">Назад к списку<a/>
 {% endblock content %}
