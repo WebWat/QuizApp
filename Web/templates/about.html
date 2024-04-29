@@ -19,7 +19,7 @@
         </form> 
     </div>
     <div class="card-footer text-body-secondary">
-        Дата публикации: {{ test.published_at }}
+        Дата публикации: {{ test.published_at|date:"d.m.Y" }}
     </div>
 </div>
 <a href="/" class="btn btn-primary mt-2">Назад к списку<a/>

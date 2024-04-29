@@ -23,7 +23,7 @@
             <a href="/about/{{ test.id }}/" class="btn btn-success mt-2">Перейти к тесту</a>
           </div>
           <div class="card-footer text-body-secondary">
-              Дата публикации: {{ test.published_at }}
+              Дата публикации: {{ test.published_at|date:"d.m.Y" }}
           </div>
       </div>
       {% endfor %}
