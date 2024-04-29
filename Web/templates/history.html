@@ -27,7 +27,7 @@
             </td>
             <td>
                 {% if result.is_finished %}
-                <span class="text-success">Завершен</span>
+                <span class="text-success">Завершен {{ result.finished_at|date:"d.m.Y" }}</span>
                 {% else %}
                 <a href="/test_run/{{ result.test_id }}/{{ result.id }}">Продолжить</a>
                 {% endif %}

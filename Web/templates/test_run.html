@@ -16,7 +16,7 @@
         {% for key, value in answers.items %}
         <div class="input-group mb-2">
           <div class="input-group-text">
-            <input class="form-check-input mt-0" type="radio" id="{{key}}" value="{{key}}" name="answers"/>
+            <input class="form-check-input mt-0" type="radio" id="{{key}}" value="{{key}}" name="answers-{{question.id}}"/>
           </div>
           <label class="form-control">{{ value }}</label>
         </div>
@@ -25,7 +25,7 @@
         {% for key, value in answers.items %}
         <div class="input-group mb-2">
           <div class="input-group-text">
-            <input class="form-check-input mt-0" type="checkbox" id="{{key}}" value="{{key}}" name="answers"/>
+            <input class="form-check-input mt-0" type="checkbox" id="{{key}}" value="{{key}}" name="answers-{{question.id}}"/>
           </div>
           <label class="form-control">{{ value }}</label>
         </div>

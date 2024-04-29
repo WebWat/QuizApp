@@ -43,6 +43,7 @@ class UserAnswers(models.Model):
     stage = models.IntegerField(default = 0)
     user_id = models.IntegerField(default = -1)
     correct_answer_rate = models.FloatField(default = -1)
+    finished_at = models.DateField(default = timezone.now())
     is_finished = models.BooleanField(default = False)
 
 class QuestionResult(models.Model):

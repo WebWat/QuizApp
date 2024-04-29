@@ -4,6 +4,7 @@
 {% block navbar %}{% include "settings_navbar.html" %}{% endblock navbar %}
 {% block content %}
     <h3 class="text-center">Тест: {{ title }}</h3>
+    <h4 class="text-center">Дата прохождения: {{ finished_at|date:"d.m.Y" }}</h4>
     <h4 class="text-center">Процент правильных ответов: {{ correct|floatformat:2 }} %</h1>
     <h4 class="text-center">Процент правильных ответов среди всех прохождений: {{ correct_rate_all|floatformat:2 }} %</h1>
     <h4>Результат:</h4>

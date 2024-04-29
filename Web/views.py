@@ -47,7 +47,7 @@ def index(request):
             if name in title:
                 title = title.replace(name, "")
                 for test in copy:
-                    if not test.tags.contains(tag):
+                    if not test.tags.contains(tag) and test in tests:
                         tests.remove(test)
     title = title.rstrip()
     tests = list(filter(lambda test: title in test.title.lower(), tests))
@@ -162,7 +162,7 @@ def result(request, unique_id):
         correct_rate_all /= user_answers.count()
 
         context = { "title": test.title,
-                    "user_answers": user_answer, 
+                    "finished_at": user_answer.finished_at, 
                     "questions": questions,
                     "correct_rate_all": correct_rate_all,
                     "correct": user_answer.correct_answer_rate,
@@ -182,7 +182,7 @@ def test_run(request, test_id, unique_id = ""):
         question = questions[user_answers.stage]
         if request.method == "POST":
             # Получаем список выбранных ответов
-            _list = request.POST.getlist("answers")
+            _list = request.POST.getlist(f"answers-{question.id}")
             if len(_list) != 0:
                 question_result = user_answers.questionresult_set.create(question_id = question.id)
                 if question.choice_type == 0:
@@ -198,6 +198,7 @@ def test_run(request, test_id, unique_id = ""):
                 # Если вопрос последний, то переходим на страницу результата
                 if test.question_set.count() == user_answers.stage + 1:
                     user_answers.is_finished = True
+                    user_answers.finished_at = datetime.date.today()
                     user_answers.save()
                     test.pass_rate += 1
                     test.save()
