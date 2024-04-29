@@ -32,28 +32,25 @@ def index(request):
     title = "" if request.GET.get("title") == None else request.GET.get("title")
     initial = title
     orderBy = request.GET.get("orderBy")
-
     query = Test.objects.filter(is_published = True)
     if orderBy == "pass_rate":
         query = query.order_by("-" + orderBy)
     elif orderBy == "published_at":
         query = query.order_by(orderBy)
-
     tests = list(query)
     title = title.lower()
     if "!" in title:
+        copy = tests.copy()
         tags = Tags.objects.all()
         for tag in tags:
             name = ("!" + tag.label).lower()
             if name in title:
                 title = title.replace(name, "")
-                for test in tests:
+                for test in copy:
                     if not test.tags.contains(tag):
                         tests.remove(test)
-
     title = title.rstrip()
     tests = list(filter(lambda test: title in test.title.lower(), tests))
-
     context = { "tests": tests,
                 "title": initial,
                 "selected": 0 if orderBy == "pass_rate" else 1,
@@ -244,6 +241,7 @@ def add_tag(request, test_id):
                 tags_list.append((tag.label, tag.id, 0))
         context = { "test": test,
                     "tags": tags_list, 
+                    "test_id": test_id,
                     "username": request.user.username }
         return render(request, "add_tag.html", context)
     except (Test.DoesNotExist):
@@ -316,10 +314,11 @@ def edit_test(request, id):
                 test.title = form.cleaned_data["title"]
                 test.description = form.cleaned_data["description"]
                 test.save()
-                return redirect("/profile")
+                return redirect(f"/profile#item-{id}")
         else:
             form = TestForm(initial = { "title": test.title, "description": test.description })
         context = { "username": request.user.username,
+                    "test_id": id,
                     "form": form }
         return render(request, "edit_test.html", context)
     except Test.DoesNotExist:
@@ -382,7 +381,12 @@ def create_question(request, test_id):
                 test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
                 image = form.cleaned_data["image"]
                 if image:
-                    image.name = str(uuid.uuid4())
+                    if image.content_type == "image/png":
+                        image.name = str(uuid.uuid4()) + ".png"
+                    elif image.content_type == "image/jpeg":
+                        image.name = str(uuid.uuid4()) + ".jpg"
+                    else:
+                        image = None
                 question = test.question_set.create(issue = form.cleaned_data["issue"], 
                                                     choice_type = int(form.cleaned_data["choice_type"]),
                                                     image = image)
@@ -394,6 +398,7 @@ def create_question(request, test_id):
         else:
             form = QuestionForm()
         context = { "username": request.user.username,
+                    "test_id": test_id,
                     "form": form }
         return render(request, "create_question.html", context)
     except Test.DoesNotExist:
@@ -409,10 +414,12 @@ def edit_question(request, test_id, id):
             if form.is_valid():
                 question.issue = form.cleaned_data["issue"]
                 question.save()
-                return redirect(f"/questions/{test_id}/")
+                return redirect(f"/questions/{test_id}#item-{id}")
         else:
             form = EditQuestionForm(initial = { "issue": question.issue })
         context = { "username": request.user.username,
+                    "test_id": test_id,
+                    "question_id": id,
                     "form": form }
         return render(request, "edit_question.html", context)
     except (Test.DoesNotExist, Question.DoesNotExist):
@@ -425,7 +432,9 @@ def delete_question(request, test_id, id):
         question = Question.objects.get(test_id = test.id, id = id)
         question.delete()
         if question.image:
-            os.remove(os.path.join(MEDIA_ROOT, question.image.name))
+            path = os.path.join(MEDIA_ROOT, question.image.name)
+            if os.path.exists(path):
+                os.remove(path)
         return redirect(f"/questions/{test_id}/")
     except (Test.DoesNotExist, Question.DoesNotExist):
         return HttpResponseNotFound("<h2>Вопрос не найден</h2>")
@@ -446,7 +455,7 @@ def set_true(request, test_id, question_id, id):
             answer = MultipleChoiceAnswers.objects.get(id = id, multiple_choice_id = question.id)
             answer.is_correct = not answer.is_correct
             answer.save()
-        return redirect(f"/questions/{test_id}/")
+        return redirect(f"/questions/{test_id}#item-{question_id}")
     except (Test.DoesNotExist, 
             Question.DoesNotExist, 
             SingleChoice.DoesNotExist, 
@@ -468,10 +477,12 @@ def create_answer(request, test_id, question_id):
                 else:
                     multiple_choice = MultipleChoice.objects.get(question_id = question.id)
                     multiple_choice.multiplechoiceanswers_set.create(text = form.cleaned_data["text"])
-                return redirect(f"/questions/{test_id}/")
+                return redirect(f"/questions/{test_id}#item-{question_id}")
         else:
             form = AnswerForm()
         context = { "username": request.user.username,
+                    "question_id": question_id,
+                    "test_id": test_id,
                     "form": form }
         return render(request, "create_answer.html", context)
     except (Test.DoesNotExist, 
@@ -494,10 +505,12 @@ def edit_answer(request, test_id, question_id, id):
             if form.is_valid():
                 answer.text = form.cleaned_data["text"]
                 answer.save()
-                return redirect(f"/questions/{test_id}/")
+                return redirect(f"/questions/{test_id}#item-{question_id}")
         else:
             form = AnswerForm(initial = { "text": answer.text })
         context = { "username": request.user.username,
+                    "question_id": question_id,
+                    "test_id": test_id,
                     "form": form }
         return render(request, "edit_answer.html", context)
     except (Test.DoesNotExist, 
@@ -516,7 +529,7 @@ def delete_answer(request, test_id, question_id, id):
         else:
             answer = MultipleChoiceAnswers.objects.get(multiple_choice_id = question_id, id = id)
         answer.delete()
-        return redirect(f"/questions/{test_id}/")
+        return redirect(f"/questions/{test_id}#item-{question_id}")
     except (Test.DoesNotExist, 
             Question.DoesNotExist, 
             SingleChoiceAnswers.DoesNotExist,

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block title %}QuizApp{% endblock title %}
 {% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
+{% block navbar %}{% include "settings_navbar.html" %}{% endblock navbar %}
 {% block content %}
-    <h4 class="text-center mb-3">Найдите интересующий вас тест:</h4>
-    <form method="get" class="d-flex mb-3">
+    <h4 class="text-center mb-3 mt-5">Найдите интересующий вас тест:</h4>
+    <form method="get" class="d-flex mb-2">
         <div class="flex-grow-1 me-1">
             <input name="title" class="form-control" value="{{ title }}"/>
         </div>
@@ -15,6 +16,7 @@
         </div>
         <input type="submit" value="Фильтр" class="btn btn-outline-primary" />
     </form>
+    <p class="text-center text-body-secondary">Добавьте дополнительный поиск по тегам, например, введите <b>!Математика</b> в поле поиска</p>
     <span class="d-flex border-bottom border-2 mb-3"></span>
     {% if tests %}
     <div class="container">
@@ -23,14 +25,16 @@
         <div class="col">
             <div class="card text-center">
                 <div class="card-body">
-                    <p><a class="card-title h4" href="about/{{test.id}}">{{ test.title }}</a></p>
-                    <h6 class="card-subtitle mb-2 text-body-secondary">{{ test.published_at }}</h6>
+                    <p class="mb-2"><a class="card-title h4" href="about/{{test.id}}">{{ test.title }}</a></p>
                     <small class="text-body-secondary">Количество прохождений: {{ test.pass_rate }}</small>
                     <p class="mb-0">
                         {% for tag in test.tags.all %}
                             <span class="badge text-bg-primary">{{ tag.label }}</span>
                         {% endfor %}
                     </p>
+                </div>
+                <div class="card-footer text-body-secondary">
+                    {{ test.published_at }}
                 </div>
             </div>
         </div>
