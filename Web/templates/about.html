@@ -7,6 +7,7 @@
     <div class="card-body">
         <h4 class="card-title">{{ test.title }}</h4>
         <h6 class="card-text">{{ test.description }}</h6>
+        <p class="mb-0">Количество вопросов: {{ questions_count }}</p>
         <p class="card-text mb-0"><small class="text-body-secondary">Автор: <a href="/user_tests/{{ username }}/" target="_blank">{{ username }}</a></small></p>
         <p>
             {% for tag in test.tags.all %}

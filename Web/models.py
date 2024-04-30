@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
+import datetime
 
 class Tags(models.Model):
     label = models.CharField(max_length = 60)
@@ -11,8 +11,8 @@ class Test(models.Model):
     title = models.CharField(max_length = 200)
     description = models.CharField(max_length = 2000)
     is_published = models.BooleanField(default = False)
-    published_at = models.DateField(default = timezone.now())
-    created_at = models.DateField()
+    published_at = models.DateField(default = datetime.date.today())
+    created_at = models.DateField(default = datetime.date.today())
     pass_rate = models.IntegerField(default = 0)
 
 class Question(models.Model):
@@ -42,8 +42,9 @@ class UserAnswers(models.Model):
     test = models.ForeignKey(Test, on_delete = models.CASCADE)
     stage = models.IntegerField(default = 0)
     user_id = models.IntegerField(default = -1)
-    correct_answer_rate = models.FloatField(default = -1)
-    finished_at = models.DateField(default = timezone.now())
+    correct_answers = models.FloatField(default = 0)
+    correct_answer_rate = models.FloatField(default = 0)
+    finished_at = models.DateTimeField(default = datetime.datetime.today())
     is_finished = models.BooleanField(default = False)
 
 class QuestionResult(models.Model):
@@ -52,7 +53,7 @@ class QuestionResult(models.Model):
 
 class SingleChoiceResult(models.Model):
     question_result = models.OneToOneField(QuestionResult, on_delete = models.CASCADE, primary_key = True)
-    chose = models.IntegerField()
+    chose = models.IntegerField(default = -1)
 
 class MultipleChoiceResult(models.Model):
     question_result = models.OneToOneField(QuestionResult, on_delete = models.CASCADE, primary_key = True)
