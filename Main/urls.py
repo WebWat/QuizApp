@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("login", auth.login),
     path("register", auth.register),
-    path("logout_out", auth.logout),
+    path("logout", auth.logout),
     path("change_password", auth.change_password),
     path("change_login", auth.change_login),
     path("", web.index),
