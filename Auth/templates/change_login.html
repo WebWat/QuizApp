@@ -7,11 +7,16 @@
 <form method="post">
     {% csrf_token %}
     {% for field in form %}
-    <div class="mb-3">
+    <div class="mb-2">
         <label class="form-label" for="{{ field.auto_id }}">{{ field.label }}</label>
         {{ field }}
     </div>
     {% endfor %}
-    <input class="btn btn-success" type="submit" value="Изменить логин"/>
+    <div>
+        {% for error in form.errors.values %}
+            <span class="text-danger">{{ error.0 }}</span>
+        {% endfor %}
+    </div>
+    <input class="btn btn-primary mt-2" type="submit" value="Изменить логин"/>
 </form>
 {% endblock content %}

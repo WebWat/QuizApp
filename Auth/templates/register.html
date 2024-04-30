@@ -1,23 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Регистрация{% endblock title %}
+{% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
 {% block content %}
 <h3 class="text-center">Регистрация</h3>
 <form method="post">
     {% csrf_token %}
     {% for field in form %}
-    <div class="mb-1">
+    <div class="mb-2">
         <label class="form-label" for="{{ field.auto_id }}">{{ field.label }}</label>
         {{ field }}
-    </div>
-    <div class="mb-3">
-        {% for error in field.errors %}
-            <span class="text-danger">{{error}}</span>
-        {% endfor %}
+        <div class="text-danger">
+            {% for error in field.errors %}
+                <p class="mt-1 mb-0">{{ error }}</p>
+            {% endfor %}
+        </div>
     </div>
     {% endfor %}
-    <input class="btn btn-lg btn-primary" type="submit" value="Зарегистрироваться"/>
+    <input class="btn btn-lg btn-primary mt-2" type="submit" value="Зарегистрироваться"/>
 </form>
-<div class="mt-3 d-flex justify-content-center">
-    <a href="/">На главную</a>
-</div>
 {% endblock content %}

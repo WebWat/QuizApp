@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import redirect, render
 from Main.settings import MEDIA_ROOT
 from .helpers import get_average_all, get_average_for_single, get_average_for_multiple
@@ -235,6 +236,7 @@ def add_tag(request, test_id):
             for id in total:
                 test.tags.add(Tags.objects.get(id = id))
             test.save()
+            messages.info(request, "Теги обновлены")
 
         test_tags = test.tags.all()
         tags_list = list()
@@ -248,7 +250,6 @@ def add_tag(request, test_id):
 
         context = { "test": test,
                     "tags": tags_list, 
-                    "test_id": test_id,
                     "username": request.user.username }
         return render(request, "add_tag.html", context)
     except Test.DoesNotExist:
@@ -295,7 +296,7 @@ def history(request):
 
 @login_required
 def profile(request):
-    context = { "tests": Test.objects.filter(user_id = request.user.id),
+    context = { "tests": Test.objects.filter(user_id = request.user.id).order_by("-id"),
                 "username": request.user.username }
     return render(request, "profile.html", context)
 
@@ -339,6 +340,7 @@ def delete_test(request, id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = id)
         test.delete()
+        messages.info(request, f"Тест \"{test.title}\" удален")
         return redirect("/profile")
     except Test.DoesNotExist:
         return redirect("/error")
@@ -369,6 +371,7 @@ def publish_test(request, id):
             test.is_published = True
             test.published_at = datetime.date.today()
             test.save()
+            messages.info(request, f"Тест \"{test.title}\" опубликован")
         return redirect("/profile")
     except Test.DoesNotExist:
         return redirect("/error")
@@ -377,8 +380,37 @@ def publish_test(request, id):
 def questions(request, test_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id)
+        questions_stats = list()
+        correct_rate_all = 0
+
+        if test.is_published:
+            questions = test.question_set.all()
+            total_user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
+            total_user_answers_count = total_user_answers.count()
+            correct_rate_all = 0 if total_user_answers_count == 0 else get_average_all(total_user_answers)
+            current_question = 0
+
+            # Заполняем questions stats
+            for question in questions:
+                answers = list()
+                if question.choice_type == 0:
+                    for answer in question.singlechoice.singlechoiceanswers_set.all():
+                        answers.append((answer.text, 
+                                        question.singlechoice.correct_answer == answer.id,
+                                        0 if total_user_answers_count == 0 else get_average_for_single(total_user_answers, current_question, answer.id)))
+                else:
+                    question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
+                    for answer in question_answers:
+                        answers.append((answer.text, 
+                                        answer.is_correct, 
+                                        0 if total_user_answers_count == 0 else get_average_for_multiple(total_user_answers, current_question, answer.id)))
+                questions_stats.append((question.issue, question.image, answers, question.choice_type))
+                current_question += 1
+                
         context = { "test": test, 
-                    "questions": Question.objects.filter(test_id = test.id),
+                    "questions_stats": questions_stats,
+                    "correct_rate_all": correct_rate_all,
+                    "questions": test.question_set.all(),
                     "username": request.user.username }
         return render(request, "questions.html", context)
     except Test.DoesNotExist:
@@ -450,6 +482,7 @@ def delete_question(request, test_id, id):
             path = os.path.join(MEDIA_ROOT, question.image.name)
             if os.path.exists(path):
                 os.remove(path)
+        messages.info(request, f"Вопрос удален")
         return redirect(f"/questions/{test_id}/")
     except (Test.DoesNotExist, Question.DoesNotExist):
         return redirect("/error")
