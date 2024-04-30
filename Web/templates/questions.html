@@ -5,7 +5,7 @@
 {% block content %}
     <h3 class="text-center">{{ test.title }}</h3>
     {% if test.is_published %}
-    <h5 class="text-center">Количество прохождений: {{ test.pass_rate }}</h5>
+    <h5 class="text-center text-secondary">Количество прохождений: {{ test.pass_rate }}</h5>
     <h6 class="text-center text-danger">Тест опубликован {{ test.published_at }}! Read-only</h6>
     {% endif %}
     <h4>Вопросы:</h4>
