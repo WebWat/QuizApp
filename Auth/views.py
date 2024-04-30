@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.contrib import auth 
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
@@ -19,9 +20,10 @@ def login(request):
                 auth.login(request, user)
                 path = request.GET.get("next") if request.GET.get("next") else "/profile"
                 return redirect(path)
+            form.add_error("", "Неверный логин или пароль")
     else:
         form = CustomLoginForm()
-    return render(request, "login.html", { "form": form })
+    return render(request, "login.html", { "form": form, "username": request.user.username  })
 
 def register(request):
     if request.method == "POST":
@@ -32,7 +34,7 @@ def register(request):
             return redirect("/login")
     else:
         form = RegisterForm()
-    return render(request, "register.html", { "form": form })
+    return render(request, "register.html", { "form": form, "username": request.user.username })
 
 @login_required
 def change_password(request):
@@ -42,6 +44,7 @@ def change_password(request):
         if form.is_valid():
             user = form.save()
             auth.update_session_auth_hash(request, user)
+            messages.info(request, "Пароль изменен")
             return redirect("/change_password")
     else:
         form = CustomPasswordChangeForm(user)
@@ -53,11 +56,15 @@ def change_password(request):
 def change_login(request):
     if request.method == "POST":
         form = LoginChangeForm(request.POST)
-        if form.is_valid() and User.objects.filter(username = form.cleaned_data["username"]).count() == 0:
-            user = User.objects.get(username = request.user.username)
-            user.username = form.cleaned_data["username"]
-            user.save()
-            return redirect("/change_login")
+        if form.is_valid():
+            if User.objects.filter(username = form.cleaned_data["username"]).count() != 0:
+                form.add_error("", "Такой логин уже существует")
+            else:
+                user = User.objects.get(username = request.user.username)
+                user.username = form.cleaned_data["username"]
+                user.save()
+                messages.info(request, f"Логин изменен на {user.username}")
+                return redirect("/change_login")
     else:
         form = LoginChangeForm()
     context = { "username": request.user.username,

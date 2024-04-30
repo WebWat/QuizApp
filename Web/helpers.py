@@ -1,5 +1,3 @@
-from .models import UserAnswers
-
 # Возвращает средний процент правильных ответов среди всех пользователей
 def get_average_all(total_user_answers):
     correct_rate_all = 0
