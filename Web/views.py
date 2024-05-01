@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_page
 from django.shortcuts import redirect, render
 from .helpers import get_average_all, get_average_for_single, get_average_for_multiple
 import datetime, uuid
@@ -70,6 +71,7 @@ def about(request, id):
     except Test.DoesNotExist:
         return redirect("/error")
 
+#@cache_page(2 * 60)
 def result(request, unique_id):
     try:
         user_answer = UserAnswers.objects.get(id = unique_id, is_finished = True)

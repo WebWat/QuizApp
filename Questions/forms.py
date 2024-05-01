@@ -1,6 +1,5 @@
 from django import forms
 from Main.validators import CharValidator
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 
 class QuestionForm(forms.Form):

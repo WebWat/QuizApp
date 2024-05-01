@@ -8,8 +8,8 @@ class Tags(models.Model):
 class Test(models.Model):
     tags = models.ManyToManyField(Tags)
     user = models.ForeignKey(User, on_delete = models.CASCADE)
-    title = models.CharField(max_length = 200)
-    description = models.CharField(max_length = 2000)
+    title = models.CharField(max_length = 200, default = "")
+    description = models.CharField(max_length = 2000, default = "")
     is_published = models.BooleanField(default = False)
     published_at = models.DateField(default = datetime.date.today())
     created_at = models.DateField(default = datetime.date.today())

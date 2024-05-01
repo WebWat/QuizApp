@@ -29,8 +29,7 @@ def questions(request, test_id):
         if test.is_published:
             questions = test.question_set.all()
             total_user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
-            total_user_answers_count = total_user_answers.count()
-            correct_rate_all = 0 if total_user_answers_count == 0 else get_average_all(total_user_answers)
+            correct_rate_all = get_average_all(total_user_answers)
             current_question = 0
 
             # Заполняем questions stats
@@ -40,13 +39,13 @@ def questions(request, test_id):
                     for answer in question.singlechoice.singlechoiceanswers_set.all():
                         answers.append((answer.text, 
                                         question.singlechoice.correct_answer == answer.id,
-                                        0 if total_user_answers_count == 0 else get_average_for_single(total_user_answers, current_question, answer.id)))
+                                        get_average_for_single(total_user_answers, current_question, answer.id)))
                 else:
                     question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
                     for answer in question_answers:
                         answers.append((answer.text, 
                                         answer.is_correct, 
-                                        0 if total_user_answers_count == 0 else get_average_for_multiple(total_user_answers, current_question, answer.id)))
+                                        get_average_for_multiple(total_user_answers, current_question, answer.id)))
                 questions_stats.append((question.issue, question.image, answers, question.choice_type))
                 current_question += 1
                 
