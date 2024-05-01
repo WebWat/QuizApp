@@ -18,37 +18,47 @@ Including another URLconf
 from django.urls import path
 from Auth import views as auth
 from Web import views as web
+from Tests import views as tests
+from Questions import views as questions
 from django.conf import settings
 from django.conf.urls.static import static
  
 urlpatterns = [
+    # Auth
     path("login", auth.login),
     path("register", auth.register),
     path("logout", auth.logout),
     path("change_password", auth.change_password),
     path("change_login", auth.change_login),
+
+    # Web
     path("", web.index),
     path("error", web.error),
-    path("add_tag/<int:test_id>/", web.add_tag),
-    path("user_tests/<username>/", web.user_tests),
+    path("history", web.history),
     path("about/<int:id>/", web.about),
+    path("result/<unique_id>/", web.result),
     path("test_run/<int:test_id>/", web.test_run),
     path("test_run/<int:test_id>/<unique_id>/", web.test_run),
-    path("result/<unique_id>/", web.result),
-    path("history", web.history),
-    path("profile", web.profile),
-    path("create_test", web.create_test),
-    path("edit_test/<int:id>/", web.edit_test),
-    path("delete_test/<int:id>/", web.delete_test),
-    path("publish_test/<int:id>/", web.publish_test),
-    path("questions/<int:test_id>/", web.questions),
-    path("create_question/<int:test_id>/", web.create_question),
-    path("edit_question/<int:test_id>/<int:id>/", web.edit_question),
-    path("delete_question/<int:test_id>/<int:id>/", web.delete_question),
-    path("set_true/<int:test_id>/<int:question_id>/<int:id>", web.set_true),
-    path("create_answer/<int:test_id>/<int:question_id>/", web.create_answer),
-    path("edit_answer/<int:test_id>/<int:question_id>/<int:id>/", web.edit_answer),
-    path("delete_answer/<int:test_id>/<int:question_id>/<int:id>/", web.delete_answer),
+
+    # Tests
+    path("profile", tests.profile),
+    path("create_test", tests.create_test),
+    path("edit_test/<int:id>/", tests.edit_test),
+    path("add_tag/<int:test_id>/", tests.add_tag),
+    path("delete_test/<int:id>/", tests.delete_test),
+    path("user_tests/<username>/", tests.user_tests),
+    path("publish_test/<int:id>/", tests.publish_test),
+
+    # Questions
+    path("questions/<int:test_id>/", questions.questions),
+    path("create_question/<int:test_id>/", questions.create_question),
+    path("delete_image/<int:test_id>/<int:id>/", questions.delete_image),
+    path("edit_question/<int:test_id>/<int:id>/", questions.edit_question),
+    path("delete_question/<int:test_id>/<int:id>/", questions.delete_question),
+    path("set_true/<int:test_id>/<int:question_id>/<int:id>", questions.set_true),
+    path("create_answer/<int:test_id>/<int:question_id>/", questions.create_answer),
+    path("edit_answer/<int:test_id>/<int:question_id>/<int:id>/", questions.edit_answer),
+    path("delete_answer/<int:test_id>/<int:question_id>/<int:id>/", questions.delete_answer),
 ]
 
 if settings.DEBUG:

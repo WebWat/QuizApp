@@ -23,7 +23,7 @@ class Question(models.Model):
 
 class SingleChoice(models.Model):
     question = models.OneToOneField(Question, on_delete = models.CASCADE, primary_key = True)
-    correct_answer = models.IntegerField(default = 0)
+    correct_answer = models.IntegerField(default = -1)
 
 class SingleChoiceAnswers(models.Model):
     single_choice = models.ForeignKey(SingleChoice, on_delete = models.CASCADE)
