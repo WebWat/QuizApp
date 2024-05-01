@@ -1,13 +1,12 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_page
 from django.shortcuts import redirect, render
 from .helpers import get_average_all, get_average_for_single, get_average_for_multiple
 import datetime, uuid
 from .models import (
     Test,
-    Question, 
     UserAnswers,
-    QuestionResult,
     SingleChoiceResult,
     MultipleChoiceResult,
     Tags
@@ -70,33 +69,37 @@ def about(request, id):
     except Test.DoesNotExist:
         return redirect("/error")
 
+#@cache_page(2 * 60)
 def result(request, unique_id):
     try:
         user_answer = UserAnswers.objects.get(id = unique_id, is_finished = True)
         test = Test.objects.get(id = user_answer.test_id)
-        results = QuestionResult.objects.filter(user_answers_id = unique_id)
+        init_questions = test.question_set.all()
+        results = user_answer.questionresult_set.all()
         total_user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
+        total_user_answers_count = total_user_answers.count()
         current_question = 0
         questions = list()
         
         # Заполняем questions list
         for result in results:
-            question = Question.objects.get(id = result.question_id)
+            question = init_questions[current_question]
             answers = list()
             if question.choice_type == 0:
-                for answer in question.singlechoice.singlechoiceanswers_set.all():
+                question_answers = question.singlechoice.singlechoiceanswers_set.all()
+                for answer in question_answers:
                     answers.append((answer.text, 
                                     result.singlechoiceresult.chose == answer.id, 
                                     question.singlechoice.correct_answer == answer.id,
-                                    get_average_for_single(total_user_answers, current_question, answer.id)))
+                                    get_average_for_single(total_user_answers_count, question, answer.id)))
             else:
                 question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
                 for answer in question_answers:
-                    chose_answers = result.multiplechoiceresult.multiplechoiceanswersresult_set.filter(chose = answer.id).exists()
+                    chose_answer = result.multiplechoiceresult.multiplechoiceanswersresult_set.filter(chose = answer.id).exists()
                     answers.append((answer.text, 
-                                    chose_answers, 
+                                    chose_answer, 
                                     answer.is_correct, 
-                                    get_average_for_multiple(total_user_answers, current_question, answer.id)))
+                                    get_average_for_multiple(question, answer.id)))
             questions.append((question.issue, question.image, answers, question.choice_type))
             current_question += 1
 
@@ -105,7 +108,7 @@ def result(request, unique_id):
         context = { "title": test.title,
                     "id": user_answer.id,
                     "finished_at": user_answer.finished_at, 
-                    "count": total_user_answers.count(),
+                    "count": total_user_answers_count,
                     "questions": questions,
                     "correct_rate_all": correct_rate_all,
                     "correct": user_answer.correct_answer_rate,
@@ -122,6 +125,11 @@ def test_run(request, test_id, unique_id = ""):
             unique_id = request.session["unique_id"]
         user_answer = UserAnswers.objects.get(id = unique_id)
         questions = test.question_set.all()
+
+        # Если вернулись к тесту после прохождения, то кидаем ошибку
+        if questions.count() == user_answer.stage:
+            return redirect("/error")
+        
         # Получаем текущий вопрос
         question = questions[user_answer.stage]
 
@@ -131,7 +139,7 @@ def test_run(request, test_id, unique_id = ""):
             # Если имеется пользовательский ввод
             if len(_list) != 0:
                 # Создаем результат
-                question_result = user_answer.questionresult_set.create(question_id = question.id)
+                question_result = user_answer.questionresult_set.create()
                 # Если вопрос с одиночным выбором
                 if question.choice_type == 0:
                     id = int(_list[0])
@@ -140,16 +148,26 @@ def test_run(request, test_id, unique_id = ""):
                     # Подсчитываем количество правильных ответов
                     if id == question.singlechoice.correct_answer:
                         user_answer.correct_answers += 1
+
+                    single = question.singlechoice.singlechoiceanswers_set.get(id = id)
+                    single.count += 1
+                    single.save()
                 # Если вопрос с множественным выбором
                 else:
                     # Создаем результат
-                    multiple_choice = MultipleChoiceResult.objects.create(question_result_id = question_result.id)
+                    multiple_choice_result = MultipleChoiceResult.objects.create(question_result_id = question_result.id)
+                    question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
+                    total = 0
                     for id in _list:
-                        multiple_choice.multiplechoiceanswersresult_set.create(chose = int(id))
-                    question_result.multiplechoiceresult = multiple_choice
+                        int_id = int(id)
+                        ans = question_answers.get(id = int_id)
+                        ans.count += 1
+                        ans.save()
+                        total += 1
+                        multiple_choice_result.multiplechoiceanswersresult_set.create(chose = int_id)
+                    question_result.multiplechoiceresult = multiple_choice_result
 
                     # Получаем ответы
-                    question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
                     # Количество баллов за верный ответ
                     inc = 1 / question_answers.filter(is_correct = True).count()
                     # Подсчитываем количество правильных ответов
@@ -164,18 +182,20 @@ def test_run(request, test_id, unique_id = ""):
                     current = 0 if current < 0 else current
                     user_answer.correct_answers += current
 
+                    question.multiplechoice.total_count += total
+                    question.multiplechoice.save()
+
                 # Сохраняем результат и идем к следующему вопросу
                 question_result.save()
                 user_answer.stage += 1
                 user_answer.save()
 
                 # Если вопрос последний, то переходим на страницу результата
-                if test.question_set.count() == user_answer.stage:
+                if questions.count() == user_answer.stage:
                     user_answer.correct_answer_rate = user_answer.correct_answers / len(questions) * 100
                     user_answer.is_finished = True
                     user_answer.finished_at = datetime.datetime.now()
                     user_answer.save()
-
                     test.pass_rate += 1
                     test.save()
                     return redirect(f"/result/{unique_id}/")
