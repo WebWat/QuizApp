@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import redirect, render
+from django.views.decorators.cache import cache_page
 from Main.settings import MEDIA_ROOT
 import os, uuid
 from Web.helpers import get_average_for_single, get_average_for_multiple, get_average_all
@@ -23,11 +24,11 @@ from .forms import (
 def questions(request, test_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id)
+        questions = test.question_set.all()
         questions_stats = list()
         correct_rate_all = 0
 
         if test.is_published:
-            questions = test.question_set.all()
             total_user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
             correct_rate_all = get_average_all(total_user_answers)
             current_question = 0
@@ -39,20 +40,20 @@ def questions(request, test_id):
                     for answer in question.singlechoice.singlechoiceanswers_set.all():
                         answers.append((answer.text, 
                                         question.singlechoice.correct_answer == answer.id,
-                                        get_average_for_single(total_user_answers, current_question, answer.id)))
+                                        get_average_for_single(total_user_answers.count(), question, answer.id)))
                 else:
                     question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
                     for answer in question_answers:
                         answers.append((answer.text, 
                                         answer.is_correct, 
-                                        get_average_for_multiple(total_user_answers, current_question, answer.id)))
+                                        get_average_for_multiple(question, answer.id)))
                 questions_stats.append((question.issue, question.image, answers, question.choice_type))
                 current_question += 1
                 
         context = { "test": test, 
                     "questions_stats": questions_stats,
                     "correct_rate_all": correct_rate_all,
-                    "questions": test.question_set.all(),
+                    "questions": questions,
                     "username": request.user.username }
         return render(request, "questions.html", context)
     except Test.DoesNotExist:
@@ -155,6 +156,7 @@ def delete_question(request, test_id, id):
             path = os.path.join(MEDIA_ROOT, question.image.name)
             if os.path.exists(path):
                 os.remove(path)
+        question.delete()
         return redirect(f"/questions/{test_id}/")
     except (Test.DoesNotExist, Question.DoesNotExist):
         return redirect("/error")

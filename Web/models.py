@@ -27,14 +27,17 @@ class SingleChoice(models.Model):
 
 class SingleChoiceAnswers(models.Model):
     single_choice = models.ForeignKey(SingleChoice, on_delete = models.CASCADE)
+    count = models.IntegerField(default = 0)
     text = models.CharField(max_length = 100)
     
 class MultipleChoice(models.Model):
     question = models.OneToOneField(Question, on_delete = models.CASCADE, primary_key = True)
+    total_count = models.IntegerField(default = 0)
 
 class MultipleChoiceAnswers(models.Model):
     multiple_choice = models.ForeignKey(MultipleChoice, on_delete = models.CASCADE)
     text = models.CharField(max_length = 100)
+    count = models.IntegerField(default = 0)
     is_correct = models.BooleanField(default = False)
 
 class UserAnswers(models.Model):
@@ -49,7 +52,6 @@ class UserAnswers(models.Model):
 
 class QuestionResult(models.Model):
     user_answers = models.ForeignKey(UserAnswers, on_delete = models.CASCADE)
-    question_id = models.IntegerField(default = -1)
 
 class SingleChoiceResult(models.Model):
     question_result = models.OneToOneField(QuestionResult, on_delete = models.CASCADE, primary_key = True)
