@@ -8,7 +8,7 @@
     <img src="{{ question.image.url }}" class="img-thumbnail mb-1" style="max-height:30rem;"/>
   </div>
   {% endif %}
-  <h4>Вопрос: {{ current }}/{{ total_questions }}</h4>
+  <h4 class="text-secondary">Вопрос: {{ current }}/{{ total_questions }}</h4>
   <h3>{{ question.issue }}</h3>
   <form method="post" class="mb-5">
       {% csrf_token %}

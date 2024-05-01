@@ -35,7 +35,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -61,6 +60,8 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'Auth/templates'),
+            os.path.join(BASE_DIR, 'Tests/templates'),
+            os.path.join(BASE_DIR, 'Questions/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

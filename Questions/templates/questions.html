@@ -74,13 +74,14 @@
                     <span class="text-secondary">Изображение: <a href="{{ question.image.url }}">{{ question.image.url }}</a></span>
                 </div>
                 {% endif %}
-                {% if not test.is_published %}
                 <div class="mb-2">
                     <a class="btn btn-sm btn-success" href="/create_answer/{{test.id}}/{{question.id}}/">Создать ответ</a>
                     <a class="btn btn-sm btn-primary" href="/edit_question/{{test.id}}/{{question.id}}">Изменить вопрос</a> 
                     <a class="btn btn-sm btn-danger" href="/delete_question/{{test.id}}/{{question.id}}">Удалить вопрос</a>
+                    {% if question.image %}
+                    <a class="btn btn-sm btn-danger" href="/delete_image/{{test.id}}/{{question.id}}">Удалить изображение</a>
+                    {% endif %}
                 </div>
-                {% endif %}
                 {% if question.choice_type == 0 %}
                     {% for answer in question.singlechoice.singlechoiceanswers_set.all %}  
                     <div class="input-group mb-2">
@@ -92,11 +93,9 @@
                             {% endif %}
                         </span>
                         <input type="text" class="form-control" value="{{ answer.text }}"/>
-                        {% if not test.is_published %}
                         <a href="/set_true/{{test.id}}/{{question.id}}/{{answer.id}}" class="btn btn-outline-secondary" type="button">Верный</a>
                         <a href="/edit_answer/{{test.id}}/{{question.id}}/{{answer.id}}" class="btn btn-outline-secondary" type="button">Изменить</a>
                         <a href="/delete_answer/{{test.id}}/{{question.id}}/{{answer.id}}" class="btn btn-outline-danger" type="button">Удалить</a>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 {% else %}
@@ -110,11 +109,9 @@
                             {% endif %}
                         </span>
                         <input type="text" class="form-control" value="{{ answer.text }}"/>
-                        {% if not test.is_published %}
                         <a href="/set_true/{{test.id}}/{{question.id}}/{{answer.id}}" class="btn btn-outline-secondary" type="button">Верный/Неверный</a>
                         <a href="/edit_answer/{{test.id}}/{{question.id}}/{{answer.id}}" class="btn btn-outline-secondary" type="button">Изменить</a>
                         <a href="/delete_answer/{{test.id}}/{{question.id}}/{{answer.id}}" class="btn btn-outline-danger" type="button">Удалить</a>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 {% endif %}

@@ -4,13 +4,13 @@
 {% block navbar %}{% include "settings_navbar.html" %}{% endblock navbar %}
 {% block content %}
     <h3 class="text-center">Тест: {{ title }}</h3>
-    <h4 class="text-center text-secondary">Дата прохождения: {{ finished_at|date:"d.m.Y H:i" }}</h4>
-    <h4 class="text-center text-secondary">Процент правильных ответов: {{ correct|floatformat:2 }} %</h4>
+    <h4 class="text-center">Дата прохождения: {{ finished_at|date:"d.m.Y H:i" }}</h4>
+    <h4 class="text-center">Процент правильных ответов: <u>{{ correct|floatformat:2 }} %</u></h4>
     <h4 class="text-center text-secondary">Количество всех прохождений: {{ count }}</h4>
     <h4 class="text-center text-secondary">Процент правильных ответов среди всех прохождений: {{ correct_rate_all|floatformat:2 }} %</h4>
     <a id="link" href="/result/{{ id }}" style="display:none;"></a>
     <div class="text-center">
-        <button class="btn btn-link" onclick="copyLink()">Скопировать ссылку</button>
+        <button class="btn btn-link" onclick="copyLink()">Скопировать ссылку на результат</button>
     </div>
     <h4>Результат:</h4>
     {% for issue, image, answers, choice_type in questions %}
