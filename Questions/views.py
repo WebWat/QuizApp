@@ -55,7 +55,7 @@ def questions(request, test_id):
                     "correct_rate_all": correct_rate_all,
                     "questions": questions,
                     "username": request.user.username }
-        return render(request, "questions.html", context)
+        return render(request, "Questions/questions.html", context)
     except Test.DoesNotExist:
         return redirect("/error")
 
@@ -90,7 +90,7 @@ def create_question(request, test_id):
         context = { "username": request.user.username,
                     "test_id": test_id,
                     "form": form }
-        return render(request, "create_question.html", context)
+        return render(request, "Questions/create_question.html", context)
     except Test.DoesNotExist:
         return redirect("/error")
 
@@ -128,7 +128,7 @@ def edit_question(request, test_id, id):
                     "test_id": test_id,
                     "question_id": id,
                     "form": form }
-        return render(request, "edit_question.html", context)
+        return render(request, "Questions/edit_question.html", context)
     except (Test.DoesNotExist, Question.DoesNotExist):
         return redirect("/error")
     
@@ -210,7 +210,7 @@ def create_answer(request, test_id, question_id):
                     "question_id": question_id,
                     "test_id": test_id,
                     "form": form }
-        return render(request, "create_answer.html", context)
+        return render(request, "Questions/create_answer.html", context)
     except (Test.DoesNotExist, 
             Question.DoesNotExist, 
             SingleChoice.DoesNotExist, 
@@ -242,7 +242,7 @@ def edit_answer(request, test_id, question_id, id):
                     "question_id": question_id,
                     "test_id": test_id,
                     "form": form }
-        return render(request, "edit_answer.html", context)
+        return render(request, "Questions/edit_answer.html", context)
     except (Test.DoesNotExist, 
             Question.DoesNotExist,
             SingleChoiceAnswers.DoesNotExist,
