@@ -46,7 +46,7 @@ def index(request):
                 "title": initial,
                 "selected": 0 if orderBy == "pass_rate" else 1,
                 "username": request.user.username  }
-    return render(request, "Web/index.html", context)
+    return render(request, "index.html", context)
 
 def about(request, id):
     try:
@@ -65,7 +65,7 @@ def about(request, id):
                     "username": request.user.username,
                     "questions_count": test.question_set.all().count(),
                     "author": User.objects.get(id = test.user_id).username }
-        return render(request, "Web/about.html", context)
+        return render(request, "about.html", context)
     except Test.DoesNotExist:
         return redirect("/error")
 
@@ -113,7 +113,7 @@ def result(request, unique_id):
                     "correct_rate_all": correct_rate_all,
                     "correct": user_answer.correct_answer_rate,
                     "username": request.user.username }
-        return render(request, "Web/result.html", context)
+        return render(request, "result.html", context)
     except UserAnswers.DoesNotExist:
         return redirect("/error")
 
@@ -215,7 +215,7 @@ def test_run(request, test_id, unique_id = ""):
                     "total_questions": test.question_set.count(),
                     "current": user_answer.stage + 1,
                     "username": request.user.username }
-        return render(request, "Web/test_run.html", context)
+        return render(request, "test_run.html", context)
     except (Test.DoesNotExist, UserAnswers.DoesNotExist):
         return redirect("/error")
 
@@ -237,7 +237,7 @@ def history(request):
 
     context = { "user_answers": results,
                 "username": request.user.username }
-    return render(request, "Web/history.html", context)
+    return render(request, "history.html", context)
     
 def error(request):
-    return render(request, "Web/error.html")
+    return render(request, "error.html")

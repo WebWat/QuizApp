@@ -36,7 +36,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 INSTALLED_APPS = [
     'django.contrib.auth',
-    'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -56,13 +55,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Main.urls'
 
-TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'templates',
+            os.path.join(BASE_DIR, 'Auth/templates'),
+            os.path.join(BASE_DIR, 'Tests/templates'),
+            os.path.join(BASE_DIR, 'Questions/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -125,9 +124,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, '/static/')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

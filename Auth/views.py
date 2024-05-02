@@ -23,7 +23,7 @@ def login(request):
             form.add_error("", "Неверный логин или пароль")
     else:
         form = CustomLoginForm()
-    return render(request, "Auth/login.html", { "form": form, "username": request.user.username  })
+    return render(request, "login.html", { "form": form, "username": request.user.username  })
 
 def register(request):
     if request.method == "POST":
@@ -34,7 +34,7 @@ def register(request):
             return redirect("/login")
     else:
         form = RegisterForm()
-    return render(request, "Auth/register.html", { "form": form, "username": request.user.username })
+    return render(request, "register.html", { "form": form, "username": request.user.username })
 
 @login_required
 def change_password(request):
@@ -50,7 +50,7 @@ def change_password(request):
         form = CustomPasswordChangeForm(user)
     context = { "username": request.user.username,
                 "form": form }
-    return render(request, "Auth/change_password.html", context)
+    return render(request, "change_password.html", context)
 
 @login_required
 def change_login(request):
@@ -69,7 +69,7 @@ def change_login(request):
         form = LoginChangeForm()
     context = { "username": request.user.username,
                 "form": form }
-    return render(request, "Auth/change_login.html", context)
+    return render(request, "change_login.html", context)
 
 @login_required
 def logout(request):
