@@ -12,7 +12,7 @@ from .models import (
     Tags
 )
 
-# TODO: проблема c "Русский язык"
+# TODO: проблема c "Русский язык", изначальная сортировка
 def index(request):
     title = "" if request.GET.get("title") == None else request.GET.get("title")
     initial = title
