@@ -1,10 +1,10 @@
-{% extends "base.html" %}
-{% block title %}Изменение вопроса{% endblock title %}
+{% extends "Web/base.html" %}
+{% block title %}Создание теста{% endblock title %}
 {% block auth %}{% include "log_navbar.html" %}{% endblock auth %}
 {% block navbar %}{% include "settings_navbar.html" %}{% endblock navbar %}
 {% block content %}
-    <h3 class="text-center">Изменение вопроса</h3>
-    <form method="post" enctype="multipart/form-data">
+    <h3 class="text-center">Создание теста</h3>
+    <form method="post">
         {% csrf_token %}
         {% for field in form %}
         <div class="mb-3">
@@ -17,9 +17,9 @@
             </div>
         </div>
         {% endfor %}
-        <input class="btn btn-success" type="submit" value="Изменить вопрос"/>
+        <input class="btn btn-success" type="submit" value="Создать тест"/>
     </form>
     <div class="mt-2 text-center">
-        <a href="/questions/{{ test_id }}#item-{{question_id}}" class="btn btn-link">Назад к вопросам</a>
+        <a href="/profile" class="btn btn-link">Назад к списку</a>
     </div>
 {% endblock content %}
