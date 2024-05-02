@@ -18,7 +18,7 @@ def user_tests(request, username):
         user = User.objects.get(username = username)
         context = { "username": user.username, 
                     "tests": user.test_set.filter(is_published = True) }
-        return render(request, "user_tests.html", context)
+        return render(request, "Tests/user_tests.html", context)
     except User.DoesNotExist:
         return redirect("/error")
     
@@ -26,7 +26,7 @@ def user_tests(request, username):
 def profile(request):
     context = { "tests": Test.objects.filter(user_id = request.user.id).order_by("-id"),
                 "username": request.user.username }
-    return render(request, "profile.html", context)
+    return render(request, "Tests/profile.html", context)
 
 @login_required
 def create_test(request):
@@ -41,7 +41,7 @@ def create_test(request):
         form = TestForm()
     context = { "username": request.user.username,
                 "form": form }
-    return render(request, "create_test.html", context)
+    return render(request, "Tests/create_test.html", context)
 
 @login_required
 def edit_test(request, id):
@@ -59,7 +59,7 @@ def edit_test(request, id):
         context = { "username": request.user.username,
                     "test_id": id,
                     "form": form }
-        return render(request, "edit_test.html", context)
+        return render(request, "Tests/edit_test.html", context)
     except Test.DoesNotExist:
         return redirect("/error")
 
@@ -136,6 +136,6 @@ def add_tag(request, test_id):
         context = { "test": test,
                     "tags": tags_list, 
                     "username": request.user.username }
-        return render(request, "add_tag.html", context)
+        return render(request, "Tests/add_tag.html", context)
     except Test.DoesNotExist:
         return redirect("/error")
