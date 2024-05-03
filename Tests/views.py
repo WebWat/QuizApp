@@ -6,7 +6,6 @@ from django.shortcuts import redirect, render
 import datetime
 from Web.models import (
     Test,
-    MultipleChoiceAnswers,
     Tags
 )
 from .forms import (
@@ -16,7 +15,8 @@ from .forms import (
 def user_tests(request, username):
     try:
         user = User.objects.get(username = username)
-        context = { "username": user.username, 
+        context = { "username": request.user.username, 
+                    "author": user.username,
                     "tests": user.test_set.filter(is_published = True) }
         return render(request, "Tests/user_tests.html", context)
     except User.DoesNotExist:
@@ -73,7 +73,6 @@ def delete_test(request, id):
     except Test.DoesNotExist:
         return redirect("/error")
     
-#TODO: довести до ума
 @login_required    
 def publish_test(request, id):
     try:
@@ -91,7 +90,7 @@ def publish_test(request, id):
                         break
                 # Если вопрос с множественным выбором
                 else:
-                    answers = MultipleChoiceAnswers.objects.filter(multiple_choice_id = question.id, is_correct = True)
+                    answers = question.multiplechoice.multiplechoiceanswers_set.filter(is_correct = True)
                     # Если не найдено ни одного верного ответа, то отклоняем
                     if answers.count() == 0:
                         correct = False
@@ -119,7 +118,7 @@ def add_tag(request, test_id):
             total = request.POST.getlist("tags")
             test.tags.clear()
             for id in total:
-                test.tags.add(Tags.objects.get(id = id))
+                test.tags.add(total_tags.get(id = id))
             test.save()
             messages.info(request, "Теги обновлены")
 

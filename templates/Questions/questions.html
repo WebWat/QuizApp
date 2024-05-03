@@ -16,52 +16,54 @@
     {% if questions.count > 0 %}
     <div>
         {% if test.is_published %}
-            {% for issue, image, answers, choice_type in questions_stats %}
-            <div class="mb-3">
-                {% if image %} 
-                <div class="text-center">
-                    <img src="{{ image.url }}" class="img-thumbnail mb-1" style="max-height:30rem;"/>
+            {% for issue, image, answers, choice_type in questions_list %}
+            <div class="row">
+                <div class="mb-3 col">
+                    <h5><b>{{ forloop.counter }}.</b> {{ issue }}</h5>
+                    {% if choice_type == 0 %}
+                        {% for answer, is_correct, average in answers %}
+                        <div class="input-group mb-2">
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="radio" disabled 
+                                {% if is_correct %}
+                                checked
+                                {% endif %}
+                                />
+                            </div>
+                            <label class="
+                            form-control 
+                            {% if is_correct %}
+                            is-valid
+                            {% elif chose %}
+                            is-invalid
+                            {% endif %}">{{ answer }} | <b>{{ average|floatformat:2 }} %</b></label>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        {% for answer, is_correct, average in answers %}
+                        <div class="input-group mb-2">
+                            <div class="input-group-text"> 
+                                <input class="form-check-input mt-0" type="checkbox" disabled 
+                                {% if is_correct %}
+                                checked
+                                {% endif %}
+                                />
+                            </div>
+                            <label class="
+                            form-control 
+                            {% if is_correct %}
+                            is-valid
+                            {% elif chose %}
+                            is-invalid
+                            {% endif %}">{{ answer }} | <b>{{ average|floatformat:2 }} %</b></label>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
-                {% endif %}
-                <h5>{{ issue }}</h5>
-                {% if choice_type == 0 %}
-                    {% for answer, is_correct, average in answers %}
-                    <div class="input-group mb-2">
-                        <div class="input-group-text">
-                            <input class="form-check-input mt-0" type="radio" disabled 
-                            {% if is_correct %}
-                            checked
-                            {% endif %}
-                            />
-                        </div>
-                        <label class="
-                        form-control 
-                        {% if is_correct %}
-                        is-valid
-                        {% elif chose %}
-                        is-invalid
-                        {% endif %}">{{ answer }}, <b>{{ average|floatformat:2 }} %</b></label>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    {% for answer, is_correct, average in answers %}
-                    <div class="input-group mb-2">
-                        <div class="input-group-text"> 
-                            <input class="form-check-input mt-0" type="checkbox" disabled 
-                            {% if is_correct %}
-                            checked
-                            {% endif %}
-                            />
-                        </div>
-                        <label class="
-                        form-control 
-                        {% if is_correct %}
-                        is-valid
-                        {% elif chose %}
-                        is-invalid
-                        {% endif %}">{{ answer }}, <b>{{ average|floatformat:2 }} %</b></label>
-                    </div>
-                    {% endfor %}
+                {% if image %} 
+                <div class="text-center col">
+                    <img src="{{ image.url }}" class="img-thumbnail mb-1" style="max-height:25rem;"/>
+                </div>
                 {% endif %}
             </div>
             {% endfor %}

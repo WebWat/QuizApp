@@ -51,13 +51,13 @@ urlpatterns = [
     # Questions
     path("questions/<int:test_id>/", questions.questions),
     path("create_question/<int:test_id>/", questions.create_question),
-    path("delete_image/<int:test_id>/<int:id>/", questions.delete_image),
-    path("edit_question/<int:test_id>/<int:id>/", questions.edit_question),
-    path("delete_question/<int:test_id>/<int:id>/", questions.delete_question),
-    path("set_true/<int:test_id>/<int:question_id>/<int:id>", questions.set_true),
+    path("delete_image/<int:test_id>/<int:question_id>/", questions.delete_image),
+    path("edit_question/<int:test_id>/<int:question_id>/", questions.edit_question),
+    path("delete_question/<int:test_id>/<int:question_id>/", questions.delete_question),
+    path("set_true/<int:test_id>/<int:question_id>/<int:answer_id>", questions.set_true),
     path("create_answer/<int:test_id>/<int:question_id>/", questions.create_answer),
-    path("edit_answer/<int:test_id>/<int:question_id>/<int:id>/", questions.edit_answer),
-    path("delete_answer/<int:test_id>/<int:question_id>/<int:id>/", questions.delete_answer),
+    path("edit_answer/<int:test_id>/<int:question_id>/<int:answer_id>/", questions.edit_answer),
+    path("delete_answer/<int:test_id>/<int:question_id>/<int:answer_id>/", questions.delete_answer),
 ]
 
 if settings.DEBUG:

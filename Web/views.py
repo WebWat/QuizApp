@@ -21,9 +21,9 @@ def index(request):
     query = Test.objects.filter(is_published = True)
     if orderBy == "pass_rate":
         query = query.order_by("-" + orderBy)
-    elif orderBy == "published_at":
-        query = query.order_by(orderBy)
-    
+    else:
+        query = query.order_by("-published_at")
+     
     tests = list(query)
     title = title.lower()
 
@@ -39,9 +39,10 @@ def index(request):
                     if not test.tags.contains(tag) and test in tests:
                         tests.remove(test)
     
-    title = title.rstrip()
+    title = title.strip()
     # Ищем тесты по названию
     tests = list(filter(lambda test: title in test.title.lower(), tests))
+
     context = { "tests": tests,
                 "title": initial,
                 "selected": 0 if orderBy == "pass_rate" else 1,
@@ -69,21 +70,20 @@ def about(request, id):
     except Test.DoesNotExist:
         return redirect("/error")
 
-#@cache_page(2 * 60)
 def result(request, unique_id):
     try:
         user_answer = UserAnswers.objects.get(id = unique_id, is_finished = True)
         test = Test.objects.get(id = user_answer.test_id)
-        init_questions = test.question_set.all()
+        questions = test.question_set.all()
         results = user_answer.questionresult_set.all()
         total_user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
         total_user_answers_count = total_user_answers.count()
         current_question = 0
-        questions = list()
+        questions_list = list()
         
-        # Заполняем questions list
+        # Заполняем questions_list
         for result in results:
-            question = init_questions[current_question]
+            question = questions[current_question]
             answers = list()
             if question.choice_type == 0:
                 question_answers = question.singlechoice.singlechoiceanswers_set.all()
@@ -100,7 +100,7 @@ def result(request, unique_id):
                                     chose_answer, 
                                     answer.is_correct, 
                                     get_average_for_multiple(question, answer.id)))
-            questions.append((question.issue, question.image, answers, question.choice_type))
+            questions_list.append((question.issue, question.image, answers, question.choice_type))
             current_question += 1
 
         correct_rate_all = get_average_all(total_user_answers)
@@ -109,7 +109,7 @@ def result(request, unique_id):
                     "id": user_answer.id,
                     "finished_at": user_answer.finished_at, 
                     "count": total_user_answers_count,
-                    "questions": questions,
+                    "questions": questions_list,
                     "correct_rate_all": correct_rate_all,
                     "correct": user_answer.correct_answer_rate,
                     "username": request.user.username }
@@ -120,11 +120,12 @@ def result(request, unique_id):
 def test_run(request, test_id, unique_id = ""):
     try:
         test = Test.objects.get(id = test_id)
+        questions = test.question_set.all()
+
         # Если не в режиме "продолжения", то задаем новый идентификатор
         if unique_id == "":
             unique_id = request.session["unique_id"]
         user_answer = UserAnswers.objects.get(id = unique_id)
-        questions = test.question_set.all()
 
         # Если вернулись к тесту после прохождения, то кидаем ошибку
         if questions.count() == user_answer.stage:
@@ -154,10 +155,10 @@ def test_run(request, test_id, unique_id = ""):
                     single.save()
                 # Если вопрос с множественным выбором
                 else:
-                    # Создаем результат
                     multiple_choice_result = MultipleChoiceResult.objects.create(question_result_id = question_result.id)
                     question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
                     total = 0
+                    # Создаем результат
                     for id in _list:
                         int_id = int(id)
                         ans = question_answers.get(id = int_id)
@@ -167,11 +168,11 @@ def test_run(request, test_id, unique_id = ""):
                         multiple_choice_result.multiplechoiceanswersresult_set.create(chose = int_id)
                     question_result.multiplechoiceresult = multiple_choice_result
 
-                    # Получаем ответы
                     # Количество баллов за верный ответ
                     inc = 1 / question_answers.filter(is_correct = True).count()
-                    # Подсчитываем количество правильных ответов
                     current = 0
+
+                    # Подсчитываем количество правильных ответов
                     for answer in question_answers:
                         # Выбран ли данный ответ пользователем?
                         answer_selected = question_result.multiplechoiceresult.multiplechoiceanswersresult_set.filter(chose = answer.id).exists()
@@ -213,7 +214,7 @@ def test_run(request, test_id, unique_id = ""):
         context = { "question": question, 
                     "answers": user_answers_dict,
                     "total_questions": test.question_set.count(),
-                    "current": user_answer.stage + 1,
+                    "stage": user_answer.stage + 1,
                     "username": request.user.username }
         return render(request, "Web/test_run.html", context)
     except (Test.DoesNotExist, UserAnswers.DoesNotExist):
