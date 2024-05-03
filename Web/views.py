@@ -70,6 +70,7 @@ def about(request, id):
     except Test.DoesNotExist:
         return redirect("/error")
 
+@cache_page(5 * 60)
 def result(request, unique_id):
     try:
         user_answer = UserAnswers.objects.get(id = unique_id, is_finished = True)

@@ -10,9 +10,6 @@
     <h6 class="text-center text-danger">Тест опубликован {{ test.published_at|date:"d.m.Y" }}! Read-only</h6>
     {% endif %}
     <h4>Вопросы:</h4>
-    {% if not test.is_published %}
-    <a class="btn btn-success mt-2 mb-2" href="/create_question/{{test.id}}">Создать вопрос</a>
-    {% endif %}
     {% if questions.count > 0 %}
     <div>
         {% if test.is_published %}
@@ -123,6 +120,9 @@
     </div>
     {% else %}
     <h5 class="text-center text-secondary">Вопросов нет</h5>
+    {% endif %}
+    {% if not test.is_published %}
+    <a class="btn btn-success mt-2 mb-2" href="/create_question/{{test.id}}">Создать вопрос</a>
     {% endif %}
     <div>
         <a href="/profile#item-{{ test.id }}" class="btn btn-primary mt-2 mb-5">Назад к списку</a>
