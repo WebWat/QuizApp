@@ -21,9 +21,9 @@ def index(request):
     query = Test.objects.filter(is_published = True)
     if orderBy == "pass_rate":
         query = query.order_by("-" + orderBy)
-    elif orderBy == "published_at":
-        query = query.order_by(orderBy)
-    
+    else:
+        query = query.order_by("-published_at")
+     
     tests = list(query)
     title = title.lower()
 
