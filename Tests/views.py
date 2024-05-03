@@ -6,7 +6,6 @@ from django.shortcuts import redirect, render
 import datetime
 from Web.models import (
     Test,
-    MultipleChoiceAnswers,
     Tags
 )
 from .forms import (
@@ -16,7 +15,8 @@ from .forms import (
 def user_tests(request, username):
     try:
         user = User.objects.get(username = username)
-        context = { "username": user.username, 
+        context = { "username": request.user.username, 
+                    "author": user.username,
                     "tests": user.test_set.filter(is_published = True) }
         return render(request, "Tests/user_tests.html", context)
     except User.DoesNotExist:
@@ -73,7 +73,6 @@ def delete_test(request, id):
     except Test.DoesNotExist:
         return redirect("/error")
     
-#TODO: довести до ума
 @login_required    
 def publish_test(request, id):
     try:
