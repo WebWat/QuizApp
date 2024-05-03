@@ -14,7 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
+from django.urls import path, re_path
+from django.views.static import serve
 from Auth import views as auth
 from Web import views as web
 from Tests import views as tests
@@ -58,6 +59,9 @@ urlpatterns = [
     path("create_answer/<int:test_id>/<int:question_id>/", questions.create_answer),
     path("edit_answer/<int:test_id>/<int:question_id>/<int:answer_id>/", questions.edit_answer),
     path("delete_answer/<int:test_id>/<int:question_id>/<int:answer_id>/", questions.delete_answer),
+
+    re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]
 
 if settings.DEBUG:

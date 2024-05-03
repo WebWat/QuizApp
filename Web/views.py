@@ -14,15 +14,15 @@ from .models import (
 
 # TODO: проблема c "Русский язык"
 def index(request):
-    title = "" if request.GET.get("title") == None else request.GET.get("title")
+    title = request.GET.get("title") if request.GET.get("title") else ""
     initial = title
     orderBy = request.GET.get("orderBy")
 
     query = Test.objects.filter(is_published = True)
-    if orderBy == "pass_rate":
-        query = query.order_by("-" + orderBy)
-    else:
+    if orderBy == "published_at":
         query = query.order_by("-published_at")
+    else:
+        query = query.order_by("-pass_rate")
      
     tests = list(query)
     title = title.lower()
@@ -45,7 +45,7 @@ def index(request):
 
     context = { "tests": tests,
                 "title": initial,
-                "selected": 0 if orderBy == "pass_rate" else 1,
+                "selected": 1 if orderBy == "published_at" else 0,
                 "username": request.user.username  }
     return render(request, "Web/index.html", context)
 
