@@ -25,13 +25,15 @@
                 </svg>
               </a>
               <h6 class="card-subtitle text-body-secondary mb-1 mt-1">Количество прохождений: {{ test.pass_rate }}</h6>
-              <p class="card-text mb-0">{{ test.description }}</p>
+
+              <p class="description_of_the_test">{{ test.description }}</p>
               {% if test.tags.count > 0 %}
-                <p class="mb-0">
-                  {% for tag in test.tags.all %}
-                      <span class="badge text-bg-secondary">{{ tag.label }}</span>
-                  {% endfor %}
-                </p>
+              <p class="mb-0">
+                {% for tag in test.tags.all %}
+                <span class="badge text-bg-secondary">{{ tag.label }}</span>
+                {% endfor %}
+              </p>
+
               {% endif %}
               <div class="mt-2">
                 {% if not test.is_published %}
