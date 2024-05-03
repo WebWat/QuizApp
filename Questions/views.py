@@ -84,7 +84,7 @@ def create_question(request, test_id):
                 # Если вопрос с множественным выбором
                 else:
                     MultipleChoice.objects.create(question = question)
-                return redirect(f"/questions/{test_id}/")
+                return redirect(f"/questions/{test_id}#item-{question.id}")
         else:
             form = QuestionForm()
         context = { "username": request.user.username,
