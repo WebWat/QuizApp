@@ -3,34 +3,38 @@
 {% block auth %}{% include "Web/log_navbar.html" %}{% endblock auth %}
 {% block navbar %}{% include "Web/settings_navbar.html" %}{% endblock navbar %}
 {% block content %}
+<div class="row">
+  <div class="col">
+    <h4 class="text-secondary">Вопрос: {{ stage }}/{{ total_questions }}</h4>
+    <h3>{{ question.issue }}</h3>
+    <form method="post" class="mb-5">
+        {% csrf_token %}
+        {% if question.choice_type == 0 %}
+          {% for key, value in answers.items %}
+          <div class="input-group mb-2">
+            <div class="input-group-text">
+              <input class="form-check-input mt-0" type="radio" id="{{key}}" value="{{key}}" name="answers-{{question.id}}"/>
+            </div>
+            <label class="form-control">{{ value }}</label>
+          </div>
+          {% endfor %}
+        {% else %}
+          {% for key, value in answers.items %}
+          <div class="input-group mb-2">
+            <div class="input-group-text">
+              <input class="form-check-input mt-0" type="checkbox" id="{{key}}" value="{{key}}" name="answers-{{question.id}}"/>
+            </div>
+            <label class="form-control">{{ value }}</label>
+          </div>
+          {% endfor %}
+        {% endif %}
+        <input class="btn btn-primary mt-3" type="submit" value="Далее">
+    </form>
+  </div>
   {% if question.image %}
-  <div class="text-center">
-    <img src="{{ question.image.url }}" class="img-thumbnail mb-1" style="max-height:30rem;"/>
+  <div class="col text-center">
+    <img src="{{ question.image.url }}" class="img-thumbnail" style="max-height:25rem;"/>
   </div>
   {% endif %}
-  <h4 class="text-secondary">Вопрос: {{ current }}/{{ total_questions }}</h4>
-  <h3>{{ question.issue }}</h3>
-  <form method="post" class="mb-5">
-      {% csrf_token %}
-      {% if question.choice_type == 0 %}
-        {% for key, value in answers.items %}
-        <div class="input-group mb-2">
-          <div class="input-group-text">
-            <input class="form-check-input mt-0" type="radio" id="{{key}}" value="{{key}}" name="answers-{{question.id}}"/>
-          </div>
-          <label class="form-control">{{ value }}</label>
-        </div>
-        {% endfor %}
-      {% else %}
-        {% for key, value in answers.items %}
-        <div class="input-group mb-2">
-          <div class="input-group-text">
-            <input class="form-check-input mt-0" type="checkbox" id="{{key}}" value="{{key}}" name="answers-{{question.id}}"/>
-          </div>
-          <label class="form-control">{{ value }}</label>
-        </div>
-        {% endfor %}
-      {% endif %}
-      <input class="btn btn-primary mt-3" type="submit" value="Далее">
-  </form>
+</div>
 {% endblock content %}
