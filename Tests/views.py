@@ -91,7 +91,7 @@ def publish_test(request, id):
                         break
                 # Если вопрос с множественным выбором
                 else:
-                    answers = MultipleChoiceAnswers.objects.filter(multiple_choice_id = question.id, is_correct = True)
+                    answers = question.multiplechoice.multiplechoiceanswers_set.filter(is_correct = True)
                     # Если не найдено ни одного верного ответа, то отклоняем
                     if answers.count() == 0:
                         correct = False
@@ -119,7 +119,7 @@ def add_tag(request, test_id):
             total = request.POST.getlist("tags")
             test.tags.clear()
             for id in total:
-                test.tags.add(Tags.objects.get(id = id))
+                test.tags.add(total_tags.get(id = id))
             test.save()
             messages.info(request, "Теги обновлены")
 

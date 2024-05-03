@@ -12,7 +12,6 @@ from Web.models import (
     SingleChoiceAnswers, 
     MultipleChoice, 
     MultipleChoiceAnswers,
-    UserAnswers,
 )
 from .forms import (
     QuestionForm, 
@@ -25,36 +24,37 @@ def questions(request, test_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id)
         questions = test.question_set.all()
-        questions_stats = list()
+        questions_list = list()
         correct_rate_all = 0
 
         if test.is_published:
-            total_user_answers = UserAnswers.objects.filter(test_id = test.id, is_finished = True)
+            total_user_answers = test.useranswers_set.filter(is_finished = True)
             correct_rate_all = get_average_all(total_user_answers)
-            current_question = 0
 
-            # Заполняем questions stats
+            # Заполняем questions_list
             for question in questions:
                 answers = list()
+                # Если вопрос с одиночным ответом
                 if question.choice_type == 0:
                     for answer in question.singlechoice.singlechoiceanswers_set.all():
                         answers.append((answer.text, 
                                         question.singlechoice.correct_answer == answer.id,
                                         get_average_for_single(total_user_answers.count(), question, answer.id)))
+                # Если вопрос с множественным ответом
                 else:
                     question_answers = question.multiplechoice.multiplechoiceanswers_set.all()
                     for answer in question_answers:
                         answers.append((answer.text, 
                                         answer.is_correct, 
                                         get_average_for_multiple(question, answer.id)))
-                questions_stats.append((question.issue, question.image, answers, question.choice_type))
-                current_question += 1
+                questions_list.append((question.issue, question.image, answers, question.choice_type))
                 
         context = { "test": test, 
-                    "questions_stats": questions_stats,
+                    "questions_list": questions_list,
                     "correct_rate_all": correct_rate_all,
                     "questions": questions,
                     "username": request.user.username }
+        
         return render(request, "Questions/questions.html", context)
     except Test.DoesNotExist:
         return redirect("/error")
@@ -95,10 +95,10 @@ def create_question(request, test_id):
         return redirect("/error")
 
 @login_required
-def edit_question(request, test_id, id):
+def edit_question(request, test_id, question_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
-        question = Question.objects.get(test_id = test.id, id = id)
+        question = test.question_set.get(id = question_id)
         if request.method == "POST":
             form = EditQuestionForm(request.POST, request.FILES)
             if form.is_valid():
@@ -118,40 +118,39 @@ def edit_question(request, test_id, id):
                         path = os.path.join(MEDIA_ROOT, question.image.name)
                         if os.path.exists(path):
                             os.remove(path)
-
                     question.image = image
                 question.save()
-                return redirect(f"/questions/{test_id}#item-{id}")
+                return redirect(f"/questions/{test_id}#item-{question_id}")
         else:
             form = EditQuestionForm(initial = { "issue": question.issue })
         context = { "username": request.user.username,
                     "test_id": test_id,
-                    "question_id": id,
+                    "question_id": question_id,
                     "form": form }
         return render(request, "Questions/edit_question.html", context)
     except (Test.DoesNotExist, Question.DoesNotExist):
         return redirect("/error")
     
 @login_required    
-def delete_image(request, test_id, id):
+def delete_image(request, test_id, question_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
-        question = Question.objects.get(test_id = test.id, id = id)
+        question = test.question_set.get(id = question_id)
         if question.image:
             path = os.path.join(MEDIA_ROOT, question.image.name)
             if os.path.exists(path):
                 os.remove(path)
             question.image = None
             question.save()
-        return redirect(f"/questions/{test_id}#item-{id}")
+        return redirect(f"/questions/{test_id}#item-{question_id}")
     except (Test.DoesNotExist, Question.DoesNotExist):
         return redirect("/error")
     
 @login_required    
-def delete_question(request, test_id, id):
+def delete_question(request, test_id, question_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
-        question = Question.objects.get(test_id = test.id, id = id)
+        question = test.question_set.get(id = question_id)
         if question.image:
             path = os.path.join(MEDIA_ROOT, question.image.name)
             if os.path.exists(path):
@@ -162,21 +161,20 @@ def delete_question(request, test_id, id):
         return redirect("/error")
 
 @login_required       
-def set_true(request, test_id, question_id, id):
+def set_true(request, test_id, question_id, answer_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
-        question = Question.objects.get(test_id = test.id, id = question_id)
+        question = test.question_set.get(id = question_id)
         # Если вопрос с одиночным выбором
         if question.choice_type == 0:
-            choice = SingleChoice.objects.get(question_id = question.id)
-            answers = SingleChoiceAnswers.objects.filter(single_choice_id = question.id)
+            answers_count = question.singlechoice.singlechoiceanswers_set.filter(id = answer_id).count()
             # Если нашли идентификатор ответа в списке, то указываем ответ как верный
-            if answers.filter(id = id).count() > 0:
-                choice.correct_answer = id
-                choice.save()
+            if answers_count > 0:
+                question.singlechoice.correct_answer = answer_id
+                question.singlechoice.save()
         # Если вопрос с множественным выбором
         else:
-            answer = MultipleChoiceAnswers.objects.get(id = id, multiple_choice_id = question.id)
+            answer = question.multiplechoice.multiplechoiceanswers_set.get(id = answer_id)
             answer.is_correct = not answer.is_correct
             answer.save()
         return redirect(f"/questions/{test_id}#item-{question_id}")
@@ -191,18 +189,18 @@ def set_true(request, test_id, question_id, id):
 def create_answer(request, test_id, question_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
-        question = Question.objects.get(test_id = test.id, id = question_id)
+        question = test.question_set.get(id = question_id)
         if request.method == "POST":
             form = AnswerForm(request.POST)
             if form.is_valid():
                 # Если вопрос с одиночным выбором
                 if question.choice_type == 0:
-                    single_choice = SingleChoice.objects.get(question_id = question.id)
-                    single_choice.singlechoiceanswers_set.create(text = form.cleaned_data["text"])
+                    SingleChoiceAnswers.objects.create(text = form.cleaned_data["text"],
+                                                       single_choice_id = question.id)
                 # Если вопрос с множественным выбором
                 else:
-                    multiple_choice = MultipleChoice.objects.get(question_id = question.id)
-                    multiple_choice.multiplechoiceanswers_set.create(text = form.cleaned_data["text"])
+                    MultipleChoiceAnswers.objects.create(text = form.cleaned_data["text"],
+                                                         multiple_choice_id = question.id)
                 return redirect(f"/questions/{test_id}#item-{question_id}")
         else:
             form = AnswerForm()
@@ -218,16 +216,18 @@ def create_answer(request, test_id, question_id):
         return redirect("/error")
 
 @login_required
-def edit_answer(request, test_id, question_id, id):
+def edit_answer(request, test_id, question_id, answer_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
-        question = Question.objects.get(test_id = test.id, id = question_id)
+        question = test.question_set.get(id = question_id)
         # Если вопрос с одиночным выбором
         if question.choice_type == 0:
-            answer = SingleChoiceAnswers.objects.get(single_choice_id = question_id, id = id)
+            answer = question.singlechoice.singlechoiceanswers_set.get(single_choice_id = question_id, 
+                                                                       id = answer_id)
         # Если вопрос с множественным выбором
         else:
-            answer = MultipleChoiceAnswers.objects.get(multiple_choice_id = question_id, id = id)
+            answer = question.multiplechoice.multiplechoiceanswers_set.get(multiple_choice_id = question_id, 
+                                                                           id = answer_id)
 
         if request.method == "POST":
             form = AnswerForm(request.POST)
@@ -250,16 +250,18 @@ def edit_answer(request, test_id, question_id, id):
         return redirect("/error")
 
 @login_required    
-def delete_answer(request, test_id, question_id, id):
+def delete_answer(request, test_id, question_id, answer_id):
     try:
         test = Test.objects.get(user_id = request.user.id, id = test_id, is_published = False)
-        question = Question.objects.get(test_id = test.id, id = question_id)
+        question = test.question_set.get(test_id = test.id, id = question_id)
         # Если вопрос с одиночным выбором
         if question.choice_type == 0:
-            answer = SingleChoiceAnswers.objects.get(single_choice_id = question_id, id = id)
+            answer = question.singlechoice.singlechoiceanswers_set.get(single_choice_id = question_id, 
+                                                                       id = answer_id)
         # Если вопрос с множественным выбором
         else:
-            answer = MultipleChoiceAnswers.objects.get(multiple_choice_id = question_id, id = id)
+            answer = question.multiplechoice.multiplechoiceanswers_set.get(multiple_choice_id = question_id, 
+                                                                           id = answer_id)
         answer.delete()
         return redirect(f"/questions/{test_id}#item-{question_id}")
     except (Test.DoesNotExist, 
