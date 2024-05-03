@@ -16,7 +16,7 @@ class TestForm(forms.Form):
     description = forms.CharField(
         label = "Описание",
         widget = forms.Textarea(attrs = 
-                                { "class": "form_description_of_the_test",
+                                { "class": "form-control",
                                 "placeholder": "Этот тест проверит..." }),
         validators = [
             MaxLengthValidator(2000, message = "Максимальное число символов: 200"),
