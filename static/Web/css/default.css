@@ -1,15 +1,11 @@
-html {
-    scroll-behavior: auto;
+#question-img {
+    max-height: 25rem;
 }
 
-#unik-img {
-    max-height:25rem;
-}
-
-#spen-text {
-    width:6rem;
+#span-text {
+    width: 6rem;
 }
 
 #link {
-    display:none;
+    display: none;
 }
