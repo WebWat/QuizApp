@@ -1,0 +1,15 @@
+html {
+    scroll-behavior: auto;
+}
+
+#unik-img {
+    max-height:25rem;
+}
+
+#spen-text {
+    width:6rem;
+}
+
+#link {
+    display:none;
+}

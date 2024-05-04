@@ -8,7 +8,7 @@
     <h4 class="text-center">Процент правильных ответов: <u>{{ correct|floatformat:2 }} %</u></h4>
     <h4 class="text-center text-secondary">Количество всех прохождений: {{ count }}</h4>
     <h4 class="text-center text-secondary">Процент правильных ответов среди всех прохождений: {{ correct_rate_all|floatformat:2 }} %</h4>
-    <a id="link" href="/result/{{ id }}/" style="display:none;"></a>
+    <a id="link" href="/result/{{ id }}/"></a>
     <div class="text-center">
         <button class="btn btn-link" onclick="copyLink()">Скопировать ссылку на результат</button>
     </div>
@@ -59,7 +59,7 @@
         </div>
         {% if image %} 
             <div class="col text-center">
-                <img src="{{ image.url }}" class="img-thumbnail mb-1" style="max-height:25rem;"/>
+                <img id="unik-img" src="{{ image.url }}" class="img-thumbnail mb-1"/>
             </div>
         {% endif %}
     </div>

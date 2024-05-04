@@ -59,7 +59,7 @@
                 </div>
                 {% if image %} 
                 <div class="text-center col">
-                    <img src="{{ image.url }}" class="img-thumbnail mb-1" style="max-height:25rem;"/>
+                    <img id="unik-img" src="{{ image.url }}" class="img-thumbnail mb-1"/>
                 </div>
                 {% endif %}
             </div>
@@ -86,9 +86,9 @@
                     <div class="input-group mb-2">
                         <span class="input-group-text">
                             {% if question.singlechoice.correct_answer == answer.id %}
-                            <span class="text-success" style="width:6rem;">Верный</span>
+                            <span id="span-text" class="text-success" >Верный</span>
                             {% else %}
-                            <span class="text-danger" style="width:6rem;">Неверный</span>
+                            <span id="span-text" class="text-danger">Неверный</span>
                             {% endif %}
                         </span>
                         <input type="text" class="form-control" value="{{ answer.text }}"/>
@@ -102,9 +102,9 @@
                     <div class="input-group mb-2">
                         <span class="input-group-text">
                             {% if answer.is_correct %}
-                            <span class="text-success" style="width:6rem;">Верный</span>
+                            <span id="span-text" class="text-success">Верный</span>
                             {% else %}
-                            <span class="text-danger" style="width:6rem;">Неверный</span>
+                            <span id="span-text" class="text-danger">Неверный</span>
                             {% endif %}
                         </span>
                         <input type="text" class="form-control" value="{{ answer.text }}"/>
