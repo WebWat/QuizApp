@@ -17,18 +17,17 @@
             <div class="row">
                 <div class="mb-3 col">
                     <h5><b>{{ forloop.counter }}.</b> {{ issue }}</h5>
-                    {% if choice_type == 0 %}
                         {% for answer, is_correct, average in answers %}
                         <div class="input-group mb-2">
                             <div class="input-group-text">
-                                <input class="form-check-input mt-0" type="radio" disabled 
+                                <input class="form-check-input mt-0" type="{{ choice_type|yesno:'checkbox,radio' }}" disabled
                                 {% if is_correct %}
                                 checked
                                 {% endif %}
                                 />
                             </div>
                             <label class="
-                            form-control 
+                            form-control
                             {% if is_correct %}
                             is-valid
                             {% elif chose %}
@@ -36,26 +35,6 @@
                             {% endif %}">{{ answer }} | <b>{{ average|floatformat:2 }} %</b></label>
                         </div>
                         {% endfor %}
-                    {% else %}
-                        {% for answer, is_correct, average in answers %}
-                        <div class="input-group mb-2">
-                            <div class="input-group-text"> 
-                                <input class="form-check-input mt-0" type="checkbox" disabled 
-                                {% if is_correct %}
-                                checked
-                                {% endif %}
-                                />
-                            </div>
-                            <label class="
-                            form-control 
-                            {% if is_correct %}
-                            is-valid
-                            {% elif chose %}
-                            is-invalid
-                            {% endif %}">{{ answer }} | <b>{{ average|floatformat:2 }} %</b></label>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
                 </div>
                 {% if image %} 
                 <div class="text-center col">
@@ -82,7 +61,10 @@
                     {% endif %}
                 </div>
                 {% if question.choice_type == 0 %}
-                    {% for answer in question.singlechoice.singlechoiceanswers_set.all %}  
+                    {% for answer in question.singlechoice.singlechoiceanswers_set.all %}
+                    {% if forloop.first %}
+                    <h6><b>Только один верный ответ</b></h6>
+                    {% endif %}
                     <div class="input-group mb-2">
                         <span class="input-group-text">
                             {% if question.singlechoice.correct_answer == answer.id %}
@@ -98,7 +80,10 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    {% for answer in question.multiplechoice.multiplechoiceanswers_set.all %}  
+                    {% for answer in question.multiplechoice.multiplechoiceanswers_set.all %}
+                    {% if forloop.first %}
+                    <h6><b>Может быть более одного верного ответа</b></h6>
+                    {% endif %}
                     <div class="input-group mb-2">
                         <span class="input-group-text">
                             {% if answer.is_correct %}

@@ -5,7 +5,11 @@
 {% block content %}
     <h3 class="text-center">Тест: {{ title }}</h3>
     <h4 class="text-center">Дата прохождения: {{ finished_at|date:"d.m.Y H:i" }}</h4>
-    <h4 class="text-center">Процент правильных ответов: <u>{{ correct|floatformat:2 }} %</u></h4>
+    {% if correct >= 50.0 %}
+    <h4 class="text-center">Процент правильных ответов: <u id="right-perc">{{ correct|floatformat:2 }} %</u></h4>
+    {% else %}
+    <h4 class="text-center">Процент правильных ответов: <u id="wrong-perc">{{ correct|floatformat:2 }} %</u></h4>
+    {% endif %}
     <h4 class="text-center text-secondary">Количество всех прохождений: {{ count }}</h4>
     <h4 class="text-center text-secondary">Процент правильных ответов среди всех прохождений: {{ correct_rate_all|floatformat:2 }} %</h4>
     <a id="link" href="/result/{{ id }}/"></a>
@@ -17,18 +21,17 @@
     <div class="mt-3 row">
         <div class="col">
             <h5><b>{{ forloop.counter }}.</b> {{ issue }}</h5>
-            {% if choice_type == 0 %}
                 {% for answer, chose, is_correct, average in answers %}
                 <div class="input-group mb-2">
                     <div class="input-group-text">
-                        <input class="form-check-input mt-0" type="radio" disabled 
+                        <input class="form-check-input mt-0" type="{{ choice_type|yesno:'checkbox,radio'}}" disabled
                         {% if chose %}
                         checked
                         {% endif %}
                         />
                     </div>
                     <label class="
-                    form-control 
+                    form-control
                     {% if is_correct %}
                     is-valid
                     {% elif chose %}
@@ -36,26 +39,6 @@
                     {% endif %}">{{ answer }} | <b>{{ average|floatformat:2 }} %</b></label>
                 </div>
                 {% endfor %}
-            {% else %}
-                {% for answer, chose, is_correct, average in answers %}
-                <div class="input-group mb-2">
-                    <div class="input-group-text"> 
-                        <input class="form-check-input mt-0" type="checkbox" disabled 
-                        {% if chose %}
-                        checked
-                        {% endif %}
-                        />
-                    </div>
-                    <label class="
-                    form-control 
-                    {% if is_correct %}
-                    is-valid
-                    {% elif chose %}
-                    is-invalid
-                    {% endif %}">{{ answer }} | <b>{{ average|floatformat:2 }} %</b></label>
-                </div>
-                {% endfor %}
-            {% endif %}
         </div>
         {% if image %} 
             <div class="col text-center">

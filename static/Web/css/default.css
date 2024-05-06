@@ -7,5 +7,13 @@
 }
 
 #link {
-    display: none;
+    display:none;
+}
+
+#right-perc {
+    color:#198754;
+}
+
+#wrong-perc{
+    color:#dc3545;
 }
