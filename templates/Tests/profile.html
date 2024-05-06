@@ -26,7 +26,7 @@
               </a>
               <h6 class="card-subtitle text-body-secondary mb-1 mt-1">Количество прохождений: {{ test.pass_rate }}</h6>
 
-              <p class="description_of_the_test">{{ test.description }}</p>
+              <p class="description mb-0">{{ test.description }}</p>
               {% if test.tags.count > 0 %}
               <p class="mb-0">
                 {% for tag in test.tags.all %}

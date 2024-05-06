@@ -17,3 +17,15 @@
 #wrong-perc {
     color:#dc3545;
 }
+
+.description {
+    white-space: pre-wrap; 
+    word-wrap: break-word; 
+}
+
+.form-description {
+    white-space: pre-wrap; 
+    word-wrap: break-word; 
+    display: block;
+    width: 100%;
+}
