@@ -40,13 +40,13 @@
                 <a href="/questions/{{test.id}}" class="btn btn-primary">Изменить</a>
                 <a href="/publish_test/{{test.id}}" class="btn btn-success">Опубликовать</a>
                 {% else %}
-                <a href="/questions/{{test.id}}" class="btn btn-secondary">Просмотреть</a>
+                <a href="/questions/{{test.id}}" class="btn btn-info">Просмотреть</a>
                 {% endif %}
-                <a href="/add_tag/{{test.id}}" class="btn btn-secondary">Добавить теги</a>
+                <a href="/add_tag/{{test.id}}" class="btn btn-warning">Добавить теги</a>
                 <a href="/delete_test/{{test.id}}" class="btn btn-danger">Удалить</a>
               </div>
             </div>
-            <div class="card-footer text-body-secondary">
+            <div class="card-footer text-body-secondary ">
               Дата создания: {{ test.created_at|date:"d.m.Y" }}
             </div>
         </div>
