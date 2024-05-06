@@ -21,7 +21,6 @@
     <div class="mt-3 row">
         <div class="col">
             <h5><b>{{ forloop.counter }}.</b> {{ issue }}</h5>
-                <h6><b>{{ choice_type|yesno:'Не менее одного ответа, Только один ответ' }}</b></h6>
                 {% for answer, chose, is_correct, average in answers %}
                 <div class="input-group mb-2">
                     <div class="input-group-text">
